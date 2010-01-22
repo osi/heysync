@@ -21,13 +21,11 @@
         </license>
     </licenses>
 
-    <!--
-        <scm>
-            <connection></connection>
-            <developerConnection></developerConnection>
-            <url>http://github.com/osi/heysync/</url>
-        </scm>
-    -->
+    <scm>
+        <connection>scm:git:http://github.com/osi/heysync.git</connection>
+        <developerConnection>scm:git:git@github.com:osi/heysync.git</developerConnection>
+        <url>http://github.com/osi/heysync/</url>
+    </scm>
 
     <build>
         <defaultGoal>install</defaultGoal>
