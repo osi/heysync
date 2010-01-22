@@ -29,6 +29,8 @@
 -->
 
     <build>
+        <defaultGoal>install</defaultGoal>
+            
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -88,7 +90,7 @@
         <dependency>
             <groupId>org.jetlang</groupId>
             <artifactId>jetlang</artifactId>
-            <version>0.20</version>
+            <version>0.2.0</version>
         </dependency>
     </dependencies>
 
