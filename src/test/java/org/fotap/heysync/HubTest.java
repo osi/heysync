@@ -41,6 +41,4 @@ public class HubTest {
 
         new Hub().addReceiver(new Object(), mock(DisposingExecutor.class));
     }
-
-
 }

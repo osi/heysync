@@ -18,8 +18,8 @@ class Dispatcher<T> {
 
     Dispatcher(Class<T> type, Creators creators) {
         this.creators = creators;
-        channels = createChannels(type);
-        proxy = creators.publisherFor(type, channels);
+        this.channels = createChannels(type);
+        this.proxy = creators.publisherFor(type, channels);
     }
 
     private Map<Method, Channel<Object>> createChannels(Class<T> type) {
