@@ -22,9 +22,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:http://github.com/osi/heysync.git</connection>
+        <connection>scm:git:git://github.com/osi/heysync.git</connection>
         <developerConnection>scm:git:git@github.com:osi/heysync.git</developerConnection>
-        <url>http://github.com/osi/heysync/</url>
+        <url>scm:git:git://github.com/osi/heysync.git</url>
     </scm>
 
     <build>
