@@ -2,8 +2,6 @@ package org.fotap.heysync;
 
 import org.jetlang.core.DisposingExecutor;
 
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,7 +9,7 @@ import java.util.Map;
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
 class Dispatchers {
-    private final ClassLoader loader = new URLClassLoader(new URL[0]);
+    private final Creators creators = new Creators();
     private final Map<Class<?>, Dispatcher<?>> dispatchers = new HashMap<Class<?>, Dispatcher<?>>();
 
     <T> T dispatcherFor(Class<T> type) {
@@ -26,7 +24,7 @@ class Dispatchers {
         @SuppressWarnings({"unchecked"}) Dispatcher<T> dispatcher = (Dispatcher<T>) dispatchers.get(type);
 
         if (null == dispatcher) {
-            dispatcher = new Dispatcher<T>(type, loader);
+            dispatcher = new Dispatcher<T>(type, creators);
             dispatchers.put(type, dispatcher);
         }
 

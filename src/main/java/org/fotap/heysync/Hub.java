@@ -14,7 +14,10 @@ public class Hub {
         }
 
         throw new IllegalArgumentException(
-                String.format("%s does not have a %s annotation", type.getName(), Asynchronous.class.getName()));
+            String.format("Cannot create a dispatcher for %s. " +
+                          "It must be an interface that is marked with the %s annotation",
+                          type.getName(),
+                          Asynchronous.class.getName()));
     }
 
     public <T> void addReceiver(T receiver, DisposingExecutor executor) {
