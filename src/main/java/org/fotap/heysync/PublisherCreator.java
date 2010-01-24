@@ -52,7 +52,7 @@ class PublisherCreator<T> extends ClassCreator<T> {
                                                         null,
                                                         writer);
         adapter.loadThis();
-        adapter.invokeConstructor(objectType, asmObjectConstructor);
+        adapter.invokeConstructor(objectType, defaultConstructor);
         int arg = 0;
 
         for (Method method : methods) {

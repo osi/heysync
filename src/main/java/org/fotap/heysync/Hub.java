@@ -21,17 +21,27 @@ public class Hub {
     }
 
     public <T> void addReceiver(T receiver, DisposingExecutor executor) {
-        processInterfaces(receiver.getClass(), receiver, executor);
+        if (!processInterfaces(receiver.getClass(), receiver, executor)) {
+            throw new IllegalArgumentException(String.format("%s does not implement any %s interfaces",
+                                                             receiver.getClass().getName(),
+                                                             Asynchronous.class.getName()));
+        }
     }
 
-    private <T> void processInterfaces(Class<?> type, T receiver, DisposingExecutor executor) {
+    private <T> boolean processInterfaces(Class<?> type, T receiver, DisposingExecutor executor) {
+        boolean any = false;
         for (Class<?> clazz : type.getInterfaces()) {
             if (isAsynchronable(clazz)) {
                 dispatchers.add(clazz, receiver, executor);
+                any = true;
             }
 
-            processInterfaces(clazz, receiver, executor);
+            if (processInterfaces(clazz, receiver, executor)) {
+                any = true;
+            }
         }
+
+        return any;
     }
 
     private static boolean isAsynchronable(Class<?> type) {

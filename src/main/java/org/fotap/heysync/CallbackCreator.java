@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import static org.fotap.heysync.AsmHelper.*;
 import static org.objectweb.asm.Opcodes.*;
 
-
 /**
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
@@ -39,20 +38,12 @@ class CallbackCreator<T> extends ClassCreator<Callback<T>> {
         String declaration = "void <init> (" + method.getDeclaringClass().getName() + ")";
         GeneratorAdapter adapter = method(ACC_PUBLIC, asmMethod(declaration));
         adapter.loadThis();
-        adapter.invokeConstructor(objectType, asmObjectConstructor);
+        adapter.invokeConstructor(objectType, defaultConstructor);
         adapter.loadThis();
         adapter.loadArg(0);
         adapter.putField(outputType(), "receiver", receiverType);
         adapter.returnValue();
         adapter.endMethod();
-    }
-
-    private GeneratorAdapter method(int access, org.objectweb.asm.commons.Method method) {
-        return new GeneratorAdapter(access,
-                                    method,
-                                    null,
-                                    null,
-                                    writer);
     }
 
     @Override

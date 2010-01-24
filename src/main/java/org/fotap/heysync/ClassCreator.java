@@ -2,6 +2,8 @@ package org.fotap.heysync;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
 
 import static org.fotap.heysync.AsmHelper.objectType;
 import static org.objectweb.asm.Opcodes.*;
@@ -54,4 +56,12 @@ abstract class ClassCreator<T> {
     protected abstract void createConstructor();
 
     protected abstract void implementMethods();
+
+    protected GeneratorAdapter method(int access, Method method) {
+        return new GeneratorAdapter(access,
+                                    method,
+                                    null,
+                                    null,
+                                    writer);
+    }
 }

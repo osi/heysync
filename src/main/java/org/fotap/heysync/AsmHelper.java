@@ -16,7 +16,8 @@ class AsmHelper {
     static final Type publisherType;
     static final org.objectweb.asm.commons.Method publishMethod;
     static final Type objectType;
-    static final org.objectweb.asm.commons.Method asmObjectConstructor;
+    static final org.objectweb.asm.commons.Method defaultConstructor;
+    static final org.objectweb.asm.commons.Method toString;
 
     static {
         publisherType = Type.getType(Publisher.class);
@@ -24,7 +25,8 @@ class AsmHelper {
 
         try {
             publishMethod = asmMethod(Publisher.class.getMethod("publish", Object.class));
-            asmObjectConstructor = org.objectweb.asm.commons.Method.getMethod(Object.class.getConstructor());
+            defaultConstructor = org.objectweb.asm.commons.Method.getMethod(Object.class.getConstructor());
+            toString = asmMethod(Object.class.getMethod("toString"));
         } catch (NoSuchMethodException e) {
             AsmHelper.logger.error("Required members missing", e);
             throw new IllegalStateException("Required members missing", e);

@@ -16,7 +16,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
-public class SeanceTest {
+public class CreatorsTest {
     @Test
     public void shouldGenerateMedium() throws NoSuchMethodException {
         Creators creators = new Creators();
