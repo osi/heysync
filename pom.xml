@@ -23,7 +23,6 @@
 
     <scm>
         <connection>scm:git:git://github.com/osi/heysync.git</connection>
-        <developerConnection>scm:git:git@github.com:osi/heysync.git</developerConnection>
         <url>scm:git:git://github.com/osi/heysync.git</url>
     </scm>
 
