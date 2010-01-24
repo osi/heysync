@@ -6,6 +6,9 @@ import org.jetlang.core.DisposingExecutor;
 
 import java.lang.reflect.Method;
 
+import static org.fotap.heysync.Validation.isAsynchronable;
+import static org.fotap.heysync.Validation.validateMethod;
+
 /**
  * A communications hub. Manages <i>dispatchers</i> and <i>receivers</i> for classes. Behind the scenes method
  * invocations are tunneled along <a href="http://jetlang.org">jetlang</a> channels.
@@ -105,39 +108,5 @@ public class Hub {
         }
 
         return any;
-    }
-
-    private static boolean isAsynchronable(Class<?> type) {
-        return validateClass(type) && validateMethods(type);
-    }
-
-    private static boolean validateMethods(Class<?> type) {
-        for (Method method : type.getMethods()) {
-            validateMethod(method);
-        }
-
-        return true;
-    }
-
-    private static void validateMethod(Method method) {
-        Class<?>[] parameters = method.getParameterTypes();
-
-        if (!method.getReturnType().equals(Void.TYPE)) {
-            throw new IllegalArgumentException(String.format(
-                "Cannot create a dispatcher for %s because it does not return void",
-                method.toGenericString()));
-        } else if (parameters.length != 1) {
-            throw new IllegalArgumentException(String.format(
-                "Cannot create a dispatcher for %s because its parameter count is not equal to one",
-                method.toGenericString()));
-        } else if (parameters[0].isPrimitive()) {
-            throw new IllegalArgumentException(String.format(
-                "Cannot create a dispatcher for %s because its parameter is a primitive type",
-                method.toGenericString()));
-        }
-    }
-
-    private static boolean validateClass(Class<?> type) {
-        return type.isInterface() && null != type.getAnnotation(Asynchronous.class);
     }
 }

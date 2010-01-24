@@ -23,7 +23,7 @@ class PublisherCreator<T> extends ClassCreator<T> {
         this.methods = new ArrayList<Method>(methods);
     }
 
-    public List<Method> methods() {
+    List<Method> methods() {
         return methods;
     }
 
