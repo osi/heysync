@@ -52,8 +52,7 @@ class Creators extends ClassLoader {
         Type type = callbackTypeFor(method);
         Class<?> callbackClass = findLoadedClass(type.getInternalName());
         if (null != callbackClass) {
-            @SuppressWarnings({"unchecked"}) Class<Callback<R>> typedCallback = (Class<Callback<R>>) callbackClass;
-            return typedCallback;
+            return Cast.as(callbackClass);
         }
         return defineClass(new CallbackCreator<R>(type, method));
     }

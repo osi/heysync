@@ -1,10 +1,14 @@
 package org.fotap.heysync;
 
+import org.jetlang.channels.Publisher;
+import org.jetlang.channels.Subscriber;
+import org.jetlang.core.Callback;
 import org.jetlang.core.DisposingExecutor;
 import org.jetlang.fibers.FiberStub;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Collection;
 
@@ -29,6 +33,44 @@ public class HubTest {
         verifyZeroInteractions(receiver);
         executor.executeAllPending();
         verify(receiver).eatCheese("cheddar");
+    }
+
+    @Test
+    public void shouldUseProvidedSubscriberInAdditionToGeneratedOne() throws NoSuchMethodException {
+        Hub hub = new Hub();
+        FiberStub executor = new FiberStub();
+
+        Subscriber<String> provided = mock(Subscriber.class);
+        hub.addSubscriber(Mouse.class.getMethod("eatCheese", String.class), provided);
+
+        Mouse receiver = mock(Mouse.class);
+        hub.addReceiver(receiver, executor);
+
+        Class<Callback<String>> callbackClass = (Class<Callback<String>>) (Class) Callback.class;
+        ArgumentCaptor<Callback<String>> captor = ArgumentCaptor.forClass(callbackClass);
+        verify(provided).subscribe(eq(executor), captor.capture());
+
+        captor.getValue().onMessage("cheddar");
+        executor.executeAllPending();
+        verify(receiver).eatCheese("cheddar");
+    }
+
+    @Test
+    public void shouldUseProvidedPublisherInAdditionToGeneratedOne() throws NoSuchMethodException {
+        Hub hub = new Hub();
+        FiberStub executor = new FiberStub();
+
+        Publisher<String> provided = mock(Publisher.class);
+        hub.addPublisher(Mouse.class.getMethod("eatCheese", String.class), provided);
+
+        Mouse receiver = mock(Mouse.class);
+        hub.addReceiver(receiver, executor);
+
+        hub.dispatcherFor(Mouse.class).eatCheese("cheddar");
+        verifyZeroInteractions(receiver);
+        executor.executeAllPending();
+        verify(receiver).eatCheese("cheddar");
+        verify(provided).publish("cheddar");
     }
 
     @Test

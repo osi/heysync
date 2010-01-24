@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
+import static org.fotap.heysync.Cast.as;
+
 /**
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
@@ -28,7 +30,7 @@ class AsmHelper {
             defaultConstructor = org.objectweb.asm.commons.Method.getMethod(Object.class.getConstructor());
             toString = asmMethod(Object.class.getMethod("toString"));
         } catch (NoSuchMethodException e) {
-            AsmHelper.logger.error("Required members missing", e);
+            logger.error("Required members missing", e);
             throw new IllegalStateException("Required members missing", e);
         }
     }
@@ -38,9 +40,7 @@ class AsmHelper {
     }
 
     static <T> Class<Callback<T>> callback() {
-        Class<?> callbackClass = Callback.class;
-        @SuppressWarnings({"unchecked"}) Class<Callback<T>> type = (Class<Callback<T>>) callbackClass;
-        return type;
+        return as(Callback.class);
     }
 
     static org.objectweb.asm.commons.Method asmMethod(String declaration) {
