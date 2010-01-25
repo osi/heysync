@@ -27,7 +27,54 @@
 
     <h2>Example</h2>
     
-    {% include source.textile %}
+        <h3>Using Jetlang</h3>
+    <div class="highlight"><pre><code class="java">
+    <span class="lineno"> 1</span>     
+    <span class="lineno"> 2</span> <span class="c1">// Create our fiber</span>
+    <span class="lineno"> 3</span> <span class="n">ThreadFiber</span> <span class="n">fiber</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ThreadFiber</span><span class="o">();</span>
+    <span class="lineno"> 4</span> <span class="n">fiber</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+    <span class="lineno"> 5</span> 
+    <span class="lineno"> 6</span> <span class="c1">// Channel for messages to flow on</span>
+    <span class="lineno"> 7</span> <span class="n">Channel</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">messages</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MemoryChannel</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;();</span>
+    <span class="lineno"> 8</span> 
+    <span class="lineno"> 9</span> <span class="c1">// Create our FieldMouse and subscribe him to the channel</span>
+    <span class="lineno">10</span> <span class="kd">final</span> <span class="n">FieldMouse</span> <span class="n">fieldMouse</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FieldMouse</span><span class="o">();</span>
+    <span class="lineno">11</span> <span class="n">messages</span><span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="n">fiber</span><span class="o">,</span> <span class="k">new</span> <span class="n">Callback</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span>
+    <span class="lineno">12</span>     <span class="nd">@Override</span>
+    <span class="lineno">13</span>     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onMessage</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
+    <span class="lineno">14</span>         <span class="n">fieldMouse</span><span class="o">.</span><span class="na">eatCheese</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
+    <span class="lineno">15</span>     <span class="o">}</span>
+    <span class="lineno">16</span> <span class="o">});</span>
+    <span class="lineno">17</span> 
+    <span class="lineno">18</span> <span class="c1">// Tell our mouse to eat cheese</span>
+    <span class="lineno">19</span> <span class="n">messages</span><span class="o">.</span><span class="na">publish</span><span class="o">(</span><span class="s">&quot;cheddar&quot;</span><span class="o">);</span>
+    <span class="lineno">20</span> 
+    <span class="lineno">21</span> <span class="n">fieldMouse</span><span class="o">.</span><span class="na">latch</span><span class="o">.</span><span class="na">await</span><span class="o">();</span>
+    </code></pre>
+    </div>
+
+        <h3>Using heysync</h3>
+    <div class="highlight"><pre><code class="java">
+    <span class="lineno"> 1</span> <span class="c1">// Create our fiber</span>
+    <span class="lineno"> 2</span> <span class="n">ThreadFiber</span> <span class="n">fiber</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ThreadFiber</span><span class="o">();</span>
+    <span class="lineno"> 3</span> <span class="n">fiber</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+    <span class="lineno"> 4</span> 
+    <span class="lineno"> 5</span> <span class="c1">// Create heysync hub</span>
+    <span class="lineno"> 6</span> <span class="n">Hub</span> <span class="n">hub</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Hub</span><span class="o">();</span>
+    <span class="lineno"> 7</span> 
+    <span class="lineno"> 8</span> <span class="c1">// Create our FieldMouse and add him as a receiver to our hub</span>
+    <span class="lineno"> 9</span> <span class="n">FieldMouse</span> <span class="n">fieldMouse</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FieldMouse</span><span class="o">();</span>
+    <span class="lineno">10</span> <span class="n">hub</span><span class="o">.</span><span class="na">addReceiver</span><span class="o">(</span><span class="n">fieldMouse</span><span class="o">,</span> <span class="n">fiber</span><span class="o">);</span>
+    <span class="lineno">11</span> 
+    <span class="lineno">12</span> <span class="c1">// Get the dispatcher for all registered Mice</span>
+    <span class="lineno">13</span> <span class="n">Mouse</span> <span class="n">dispatcher</span> <span class="o">=</span> <span class="n">hub</span><span class="o">.</span><span class="na">dispatcherFor</span><span class="o">(</span><span class="n">Mouse</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="lineno">14</span> 
+    <span class="lineno">15</span> <span class="c1">// Tell our mouse to eat cheese</span>
+    <span class="lineno">16</span> <span class="n">dispatcher</span><span class="o">.</span><span class="na">eatCheese</span><span class="o">(</span><span class="s">&quot;cheddar&quot;</span><span class="o">);</span>
+    <span class="lineno">17</span> 
+    <span class="lineno">18</span> <span class="n">fieldMouse</span><span class="o">.</span><span class="na">latch</span><span class="o">.</span><span class="na">await</span><span class="o">();</span>
+    </code></pre>
+    </div>
 
     <h2>Dependencies</h2>
 <p>Java 6, <a href="http://jetlang.org">Jetlang</a>, <a href="http://slf4j.org">SLF4j</a></p>
