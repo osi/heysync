@@ -27,51 +27,7 @@
 
     <h2>Example</h2>
     
-    <h3>Using Jetlang</h3>
-{% highlight java linenos %}    
-// Create our fiber
-ThreadFiber fiber = new ThreadFiber();
-fiber.start();
-
-// Channel for messages to flow on
-Channel<String> messages = new MemoryChannel<String>();
-
-// Create our FieldMouse and subscribe him to the channel
-final FieldMouse fieldMouse = new FieldMouse();
-messages.subscribe(fiber, new Callback<String>() {
-    @Override
-    public void onMessage(String message) {
-        fieldMouse.eatCheese(message);
-    }
-});
-
-// Tell our mouse to eat cheese
-messages.publish("cheddar");
-
-fieldMouse.latch.await();
-{% endhighlight %}
-
-    <h3>Using heysync</h3>
-{% highlight java linenos %}
-// Create our fiber
-ThreadFiber fiber = new ThreadFiber();
-fiber.start();
-
-// Create heysync hub
-Hub hub = new Hub();
-
-// Create our FieldMouse and add him as a receiver to our hub
-FieldMouse fieldMouse = new FieldMouse();
-hub.addReceiver(fieldMouse, fiber);
-
-// Get the dispatcher for all registered Mice
-Mouse dispatcher = hub.dispatcherFor(Mouse.class);
-
-// Tell our mouse to eat cheese
-dispatcher.eatCheese("cheddar");
-
-fieldMouse.latch.await();
-{% endhighlight %}
+    {% include source.textile %}
 
     <h2>Dependencies</h2>
 <p>Java 6, <a href="http://jetlang.org">Jetlang</a>, <a href="http://slf4j.org">SLF4j</a></p>
