@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
@@ -6,30 +8,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
 	<title>osi/heysync @ GitHub</title>
-	
-	<style type="text/css">
-		body {
-  		margin-top: 1.0em;
-  		background-color: #fcca4f;
-		  font-family: "Helvetica,Arial,FreeSans"; 
-  		color: #000000;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-		h1 { font-size: 3.8em; color: #0335b0; margin-bottom: 3px; }
-		h1 .small { font-size: 0.4em; }
-		h1 a { text-decoration: none }
-		h2 { font-size: 1.5em; color: #0335b0; }
-    h3 { text-align: center; color: #0335b0; }
-    a { color: #0335b0; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-		pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-	</style>
+	<link rel="stylesheet" href="master.css" type="text/css" media="screen" charset="utf-8"/>
 	
 </head>
 
@@ -59,6 +38,51 @@
 <h2>Authors</h2>
 <p><a href="http://fotap.org/~osi">peter royal</a>
 <br/>
+
+    <h2>Example</h2>
+{% highlight java %}    
+// Create our fiber
+ThreadFiber fiber = new ThreadFiber();
+fiber.start();
+
+// Channel for messages to flow on
+Channel<String> messages = new MemoryChannel<String>();
+
+// Create our FieldMouse and subscribe him to the channel
+final FieldMouse fieldMouse = new FieldMouse();
+messages.subscribe(fiber, new Callback<String>() {
+    @Override
+    public void onMessage(String message) {
+        fieldMouse.eatCheese(message);
+    }
+});
+
+// Tell our mouse to eat cheese
+messages.publish("cheddar");
+
+fieldMouse.latch.await();
+{% endhighlight %}
+
+{% highlight java %}
+// Create our fiber
+ThreadFiber fiber = new ThreadFiber();
+fiber.start();
+
+// Create heysync hub
+Hub hub = new Hub();
+
+// Create our FieldMouse and add him as a receiver to our hub
+FieldMouse fieldMouse = new FieldMouse();
+hub.addReceiver(fieldMouse, fiber);
+
+// Get the dispatcher for all registered Mice
+Mouse dispatcher = hub.dispatcherFor(Mouse.class);
+
+// Tell our mouse to eat cheese
+dispatcher.eatCheese("cheddar");
+
+fieldMouse.latch.await();
+{% endhighlight %}
 
 
     <h2>Download</h2>
