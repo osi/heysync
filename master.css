@@ -1,21 +1,21 @@
 
 body {
 	margin-top: 1.0em;
-	background-color: #fcca4f;
-	  font-family: "Helvetica,Arial,FreeSans"; 
-	color: #000000;
+  background-color: #BBB;
+  color: black;
+  font-family: "Helvetica,Arial,FreeSans"; 
 }
 #container {
   margin: 0 auto;
   width: 700px;
 }
-h1 { font-size: 3.8em; color: #0335b0; margin-bottom: 3px; }
+h1 { font-size: 3.8em; color: #530FAD; margin-bottom: 3px; }
 h1 .small { font-size: 0.4em; }
 h1 a { text-decoration: none }
-h2 { font-size: 1.5em; color: #0335b0; }
-h3 { text-align: center; color: #0335b0; }
-a { color: #0335b0; }
-.description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+h2 { font-size: 1.5em; color: #FFE800; }
+h3 { text-align: center; color: #FFE800; }
+a { color: #530FAD; }
+.description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px;}
 .download { float: right; }
 pre { background: #000; color: #fff; padding: 15px;}
 hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
@@ -46,10 +46,10 @@ hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
 .highlight .kd { font-weight: bold } /* Keyword.Declaration */
 .highlight .kp { font-weight: bold } /* Keyword.Pseudo */
 .highlight .kr { font-weight: bold } /* Keyword.Reserved */
-.highlight .kt { color: #445588; font-weight: bold } /* Keyword.Type */
+.highlight .kt { color: #99AACC; font-weight: bold } /* Keyword.Type */
 .highlight .m { color: #009999 } /* Literal.Number */
-.highlight .s { color: #d14 } /* Literal.String */
-.highlight .na { color: #008080 } /* Name.Attribute */
+.highlight .s { color: red } /* Literal.String */
+.highlight .na { color: rgb(0,200,200) } /* Name.Attribute */
 .highlight .nb { color: #0086B3 } /* Name.Builtin */
 .highlight .nc { color: #445588; font-weight: bold } /* Name.Class */
 .highlight .no { color: #008080 } /* Name.Constant */
@@ -81,3 +81,4 @@ hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
 .highlight .vg { color: #008080 } /* Name.Variable.Global */
 .highlight .vi { color: #008080 } /* Name.Variable.Instance */
 .highlight .il { color: #009999 } /* Literal.Number.Integer.Long */
+.highlight .lineno { font-size: smaller; color: #AAA;}

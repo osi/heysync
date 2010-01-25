@@ -17,30 +17,18 @@
   
   <div id="container">
 
-    <div class="download">
-      <a href="http://github.com/osi/heysync/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/osi/heysync/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
-      
-    <h1><a href="http://github.com/osi/heysync">heysync</a> 
-      <span class="small">by <a href="http://github.com/osi">peter royal</a></span></h1>
+    <h1><a href="http://github.com/osi/heysync">heysync</a></h1>
 
     <div class="description">
-      transparent messaging passing in java using jetlang
+      Transparent messaging passing in Java using jetlang. heysync removes the need to write glue code for
+      message passing concurrency. Using standard Java interfaces with methods that return void, heysync will
+      generate the necessary glue at runtime.
     </div>
 
-    <h2>Dependencies</h2>
-<p>Java 6, <a href="http://jetlang.org">Jetlang</a>, <a href="http://slf4j.org">SLF4j</a></p>
-<h2>License</h2>
-<p><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></p>
-<h2>Authors</h2>
-<p><a href="http://fotap.org/~osi">peter royal</a>
-<br/>
-
     <h2>Example</h2>
-{% highlight java %}    
+    
+    <h3>Using Jetlang</h3>
+{% highlight java linenos %}    
 // Create our fiber
 ThreadFiber fiber = new ThreadFiber();
 fiber.start();
@@ -63,7 +51,8 @@ messages.publish("cheddar");
 fieldMouse.latch.await();
 {% endhighlight %}
 
-{% highlight java %}
+    <h3>Using heysync</h3>
+{% highlight java linenos %}
 // Create our fiber
 ThreadFiber fiber = new ThreadFiber();
 fiber.start();
@@ -84,14 +73,18 @@ dispatcher.eatCheese("cheddar");
 fieldMouse.latch.await();
 {% endhighlight %}
 
+    <h2>Dependencies</h2>
+<p>Java 6, <a href="http://jetlang.org">Jetlang</a>, <a href="http://slf4j.org">SLF4j</a></p>
+<h2>License</h2>
+<p><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></p>
+<h2>Authors</h2>
+<p><a href="http://fotap.org/~osi">peter royal</a>
+<br/>
 
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/osi/heysync/zipball/master">zip</a> or
-      <a href="http://github.com/osi/heysync/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+
+
+    <h2>Source</h2>
+    <p>You can clone the project with <a href="http://git-scm.com">Git</a>
       by running:
       <pre>$ git clone git://github.com/osi/heysync</pre>
     </p>
