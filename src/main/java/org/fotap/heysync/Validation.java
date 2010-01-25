@@ -25,11 +25,11 @@ class Validation {
             throw new IllegalArgumentException(String.format(
                 "Cannot create a dispatcher for %s because it does not return void",
                 method.toGenericString()));
-        } else if (parameters.length != 1) {
+        } else if (parameters.length > 1) {
             throw new IllegalArgumentException(String.format(
-                "Cannot create a dispatcher for %s because its parameter count is not equal to one",
+                "Cannot create a dispatcher for %s because it takes more than one parameter",
                 method.toGenericString()));
-        } else if (parameters[0].isPrimitive()) {
+        } else if (parameters.length > 0 && parameters[0].isPrimitive()) {
             throw new IllegalArgumentException(String.format(
                 "Cannot create a dispatcher for %s because its parameter is a primitive type",
                 method.toGenericString()));

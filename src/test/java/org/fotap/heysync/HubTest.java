@@ -36,6 +36,20 @@ public class HubTest {
     }
 
     @Test
+    public void shouldSendAsyncSignal() {
+        Hub hub = new Hub();
+        FiberStub executor = new FiberStub();
+
+        Pinger receiver = mock(Pinger.class);
+        hub.addReceiver(receiver, executor);
+
+        hub.dispatcherFor(Pinger.class).ping();
+        verifyZeroInteractions(receiver);
+        executor.executeAllPending();
+        verify(receiver).ping();
+    }
+
+    @Test
     public void shouldUseProvidedSubscriberInAdditionToGeneratedOne() throws NoSuchMethodException {
         Hub hub = new Hub();
         FiberStub executor = new FiberStub();

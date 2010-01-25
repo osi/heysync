@@ -19,7 +19,7 @@ class PublisherCreator<T> extends ClassCreator<T> {
     private final List<Method> methods;
 
     PublisherCreator(Class<T> type, Collection<Method> methods) {
-        super(type, Type.getType("L" + Type.getInternalName(type) + "$Medium;"));
+        super(type, Type.getType("L" + Type.getInternalName(type) + "$Publisher;"));
         this.methods = new ArrayList<Method>(methods);
     }
 
@@ -29,6 +29,9 @@ class PublisherCreator<T> extends ClassCreator<T> {
 
     @Override
     protected void createFields() {
+        writer.visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "SIGNAL", objectType.getDescriptor(), null, null)
+            .visitEnd();
+
         for (Method method : methods) {
             createField(writer, method);
         }
@@ -46,11 +49,22 @@ class PublisherCreator<T> extends ClassCreator<T> {
 
     @Override
     protected void createConstructor() {
-        GeneratorAdapter adapter = new GeneratorAdapter(ACC_PUBLIC,
-                                                        asmConstructorMethod(methods.size()),
-                                                        null,
-                                                        null,
-                                                        writer);
+        constructorForPublishers();
+        staticInitializer();
+    }
+
+    private void staticInitializer() {
+        GeneratorAdapter adapter = method(ACC_STATIC,  asmMethod("void <clinit> ()"));
+        adapter.newInstance(objectType);
+        adapter.dup();
+        adapter.invokeConstructor(objectType, defaultConstructor);
+        adapter.putStatic(outputType(), "SIGNAL", objectType);
+        adapter.returnValue();
+        adapter.endMethod();
+    }
+
+    private void constructorForPublishers() {
+        GeneratorAdapter adapter = method(ACC_PUBLIC, asmConstructorMethod(methods.size()));
         adapter.loadThis();
         adapter.invokeConstructor(objectType, defaultConstructor);
         int arg = 0;
@@ -84,13 +98,21 @@ class PublisherCreator<T> extends ClassCreator<T> {
     }
 
     private void implement(Method method) {
-        GeneratorAdapter adapter = new GeneratorAdapter(ACC_PUBLIC, AsmHelper.asmMethod(method), null, null, writer);
+        GeneratorAdapter adapter = method(ACC_PUBLIC, asmMethod(method));
         adapter.loadThis();
         adapter.getField(outputType(), fieldNameFor(method), publisherType);
-        adapter.loadArg(0);
+        loadMessage(method, adapter);
         adapter.invokeInterface(publisherType, publishMethod);
         adapter.returnValue();
         adapter.endMethod();
+    }
+
+    private void loadMessage(Method method, GeneratorAdapter adapter) {
+        if (method.getParameterTypes().length > 0) {
+            adapter.loadArg(0);
+        } else {
+            adapter.getStatic(outputType(), "SIGNAL", objectType);
+        }
     }
 
     private String fieldNameFor(Method method) {

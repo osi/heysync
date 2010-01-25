@@ -16,12 +16,14 @@ class CallbackCreator<T> extends ClassCreator<Callback<T>> {
     private final Method method;
     private final Type receiverType;
     private final Type parameterType;
+    private final boolean hasParameter;
 
     public CallbackCreator(Type outputType, Method method) {
         super(AsmHelper.<T>callback(), outputType);
         this.method = method;
         this.receiverType = Type.getType(method.getDeclaringClass());
-        this.parameterType = Type.getType(method.getParameterTypes()[0]);
+        this.hasParameter = method.getParameterTypes().length > 0;
+        this.parameterType = hasParameter ? Type.getType(method.getParameterTypes()[0]) : objectType;
     }
 
     @Override
@@ -52,7 +54,9 @@ class CallbackCreator<T> extends ClassCreator<Callback<T>> {
             asmMethod("void onMessage (" + parameterType.getClassName() + ")");
 
         stronglyTyped(stronglyTypedMethod);
-        synthetic(stronglyTypedMethod);
+        if (hasParameter) {
+            synthetic(stronglyTypedMethod);
+        }
     }
 
     private void synthetic(org.objectweb.asm.commons.Method stronglyTypedMethod) {
@@ -70,7 +74,9 @@ class CallbackCreator<T> extends ClassCreator<Callback<T>> {
         GeneratorAdapter adapter = method(ACC_PUBLIC, method);
         adapter.loadThis();
         adapter.getField(outputType(), "receiver", receiverType);
-        adapter.loadArg(0);
+        if (hasParameter) {
+            adapter.loadArg(0);
+        }
         adapter.invokeInterface(receiverType, asmMethod(this.method));
         adapter.returnValue();
         adapter.endMethod();
