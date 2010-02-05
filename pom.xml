@@ -184,7 +184,7 @@
     <repositories>
         <repository>
             <id>jetlang</id>
-            <url>https://jetlang.googlecode.com/svn/repo/</url>
+            <url>http://jetlang.googlecode.com/svn/repo/</url>
         </repository>
     </repositories>
 
