@@ -32,6 +32,15 @@ public class ProtocolTest {
     }
 
     @Test
+    public void shouldHandleMultipleSubscribers() {
+        FiberStub executor = new FiberStub();
+
+        Protocol<Mouse> protocol = Protocol.create(Mouse.class);
+        protocol.subscribe(executor, mock(Mouse.class, "one"));
+        protocol.subscribe(executor, mock(Mouse.class, "two"));
+    }
+
+    @Test
     public void shouldSendAsyncSignal() {
         FiberStub executor = new FiberStub();
 
@@ -49,7 +58,7 @@ public class ProtocolTest {
     public void shouldFailWhenTryingToGetDispatcherForNotAtAsynchronousInterface() {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Cannot create a protocol for " + Collection.class.getName() + ". It must be an interface that is marked with the " + Asynchronous.class
-            .getName() + " annotation");
+                .getName() + " annotation");
 
         Protocol.create(Collection.class);
     }
@@ -58,7 +67,7 @@ public class ProtocolTest {
     public void shouldFailWhenTryingToGetDispatcherForClass() {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Cannot create a protocol for " + Object.class.getName() + ". It must be an interface that is marked with the " + Asynchronous.class
-            .getName() + " annotation");
+                .getName() + " annotation");
 
         Protocol.create(Object.class);
     }
@@ -73,7 +82,7 @@ public class ProtocolTest {
     public void shouldFailWhenSpecifyingInvalidParameterType() throws NoSuchMethodException {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage(
-            "Specified parameter type java.lang.Object is not what the method requires: public abstract void org.fotap.heysync.Mouse.eatCheese(java.lang.String)");
+                "Specified parameter type java.lang.Object is not what the method requires: public abstract void org.fotap.heysync.Mouse.eatCheese(java.lang.String)");
 
         Protocol<Mouse> protocol = Protocol.create(Mouse.class);
         assertNotNull(protocol.channelFor(Mouse.class.getMethod("eatCheese", String.class), Object.class));
@@ -83,7 +92,7 @@ public class ProtocolTest {
     public void shouldFailWhenTryingToGetChannelForInvalidMethod() throws NoSuchMethodException {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage(
-            "public java.lang.String java.lang.Object.toString() is not a method on org.fotap.heysync.Mouse");
+                "public java.lang.String java.lang.Object.toString() is not a method on org.fotap.heysync.Mouse");
 
         Protocol<Mouse> protocol = Protocol.create(Mouse.class);
         protocol.channelFor(Object.class.getMethod("toString"), Object.class);

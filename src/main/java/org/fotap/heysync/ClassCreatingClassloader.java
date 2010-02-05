@@ -22,8 +22,7 @@ class ClassCreatingClassloader extends ClassLoader {
     }
 
     private <T> Object[] publisherArguments(PublisherCreator<T> publisherCreator,
-                                            Map<Method, ? extends Publisher<?>> publishers)
-    {
+                                            Map<Method, ? extends Publisher<?>> publishers) {
         List<Publisher<?>> arguments = new ArrayList<Publisher<?>>();
         for (Method method : publisherCreator.methods()) {
             arguments.add(publishers.get(method));
@@ -50,7 +49,7 @@ class ClassCreatingClassloader extends ClassLoader {
 
     private <R> Class<? extends Callback<R>> loadCallbackClass(Method method) {
         Type type = callbackTypeFor(method);
-        Class<?> callbackClass = findLoadedClass(type.getInternalName());
+        Class<?> callbackClass = findLoadedClass(type.getClassName());
         if (null != callbackClass) {
             return Cast.as(callbackClass);
         }
@@ -59,10 +58,10 @@ class ClassCreatingClassloader extends ClassLoader {
 
     private Type callbackTypeFor(Method method) {
         StringBuilder builder = new StringBuilder()
-            .append("L")
-            .append(Type.getInternalName(method.getDeclaringClass()))
-            .append("$Callback$")
-            .append(method.getName());
+                .append("L")
+                .append(Type.getInternalName(method.getDeclaringClass()))
+                .append("$Callback$")
+                .append(method.getName());
 
         for (Class<?> type : method.getParameterTypes()) {
             builder.append("$").append(type.getName().replace('.', '$'));
