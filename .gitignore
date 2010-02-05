@@ -1,4 +1,6 @@
 /target
 /.idea
 /heysync.iml
+/*.ipr
+/*.iws
 /_site
