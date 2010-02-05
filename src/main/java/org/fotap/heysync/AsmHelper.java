@@ -3,8 +3,6 @@ package org.fotap.heysync;
 import org.jetlang.channels.Publisher;
 import org.jetlang.core.Callback;
 import org.objectweb.asm.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
@@ -14,7 +12,6 @@ import static org.fotap.heysync.Cast.as;
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
 class AsmHelper {
-    static final Logger logger = LoggerFactory.getLogger(PublisherCreator.class);
     static final Type publisherType;
     static final org.objectweb.asm.commons.Method publishMethod;
     static final Type objectType;
@@ -30,7 +27,6 @@ class AsmHelper {
             defaultConstructor = org.objectweb.asm.commons.Method.getMethod(Object.class.getConstructor());
             toString = asmMethod(Object.class.getMethod("toString"));
         } catch (NoSuchMethodException e) {
-            logger.error("Required members missing", e);
             throw new IllegalStateException("Required members missing", e);
         }
     }
