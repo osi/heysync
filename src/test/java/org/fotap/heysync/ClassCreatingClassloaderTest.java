@@ -2,7 +2,6 @@ package org.fotap.heysync;
 
 import org.jetlang.channels.Publisher;
 import org.jetlang.core.Callback;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
@@ -16,15 +15,15 @@ import static org.mockito.Mockito.verify;
 /**
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
-public class CreatorsTest {
+public class ClassCreatingClassloaderTest {
     @Test
     public void shouldGenerateMedium() throws NoSuchMethodException {
-        Creators creators = new Creators();
+        ClassCreatingClassloader loader = new ClassCreatingClassloader();
 
         Publisher<String> publisher = mock(Publisher.class);
-        Mouse mouse = creators.publisherFor(Mouse.class,
-                                            Collections.<Method, Publisher<?>>singletonMap(
-                                                Mouse.class.getMethod("eatCheese", String.class), publisher));
+        Mouse mouse = loader.publisherFor(Mouse.class,
+                                          Collections.<Method, Publisher<?>>singletonMap(
+                                              Mouse.class.getMethod("eatCheese", String.class), publisher));
 
         mouse.eatCheese("cheddar");
         verify(publisher).publish("cheddar");
@@ -32,7 +31,7 @@ public class CreatorsTest {
 
     @Test
     public void shouldNotGetTwoPublishersBackwards() throws NoSuchMethodException {
-        Creators creators = new Creators();
+        ClassCreatingClassloader loader = new ClassCreatingClassloader();
 
         Publisher<String> yarnPublisher = mock(Publisher.class);
         Publisher<Integer> livesPublisher = mock(Publisher.class);
@@ -41,7 +40,7 @@ public class CreatorsTest {
         publishers.put(Cat.class.getMethod("chaseYarn", String.class), yarnPublisher);
         publishers.put(Cat.class.getMethod("updateLives", Integer.class), livesPublisher);
 
-        Cat cat = creators.publisherFor(Cat.class, publishers);
+        Cat cat = loader.publisherFor(Cat.class, publishers);
 
         cat.chaseYarn("white");
         cat.updateLives(7);
@@ -50,24 +49,14 @@ public class CreatorsTest {
     }
 
     @Test
-    @Ignore
-    public void shouldBoxPrimitiveArgument() {
-    }
-
-    @Test
-    @Ignore
-    public void shouldSendObjectForNoArgMethods() {
-    }
-
-    @Test
     public void shouldCreateCallbackForMethod() throws NoSuchMethodException {
         Mouse mouse = mock(Mouse.class);
 
-        Callback<Object> callback = new Creators().callbackFor(Mouse.class.getMethod("eatCheese", String.class), mouse);
+        Callback<Object> callback = new ClassCreatingClassloader().callbackFor(Mouse.class.getMethod("eatCheese",
+                                                                                                     String.class),
+                                                                               mouse);
         callback.onMessage("Cheddar");
 
         verify(mouse).eatCheese("Cheddar");
     }
-
-
 }

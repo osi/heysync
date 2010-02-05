@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
-class Creators extends ClassLoader {
+class ClassCreatingClassloader extends ClassLoader {
 
     <T> T publisherFor(Class<T> type, Map<Method, ? extends Publisher<?>> publishers) {
         PublisherCreator<T> publisherCreator = new PublisherCreator<T>(type, publishers.keySet());

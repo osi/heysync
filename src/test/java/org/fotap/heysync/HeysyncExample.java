@@ -12,18 +12,18 @@ public class HeysyncExample {
         ThreadFiber fiber = new ThreadFiber();
         fiber.start();
 
-        // Create heysync hub
-        Hub hub = new Hub();
+        // Create protocol
+        Protocol<Mouse> protocol = Protocol.create(Mouse.class);
 
-        // Create our FieldMouse and add him as a receiver to our hub
+        // Create our FieldMouse and subscribe him to the protocol
         FieldMouse fieldMouse = new FieldMouse();
-        hub.addReceiver(fieldMouse, fiber);
+        protocol.subscribe(fiber, fieldMouse);
 
-        // Get the dispatcher for all registered Mice
-        Mouse dispatcher = hub.dispatcherFor(Mouse.class);
+        // Get the publisher for all registered Mice
+        Mouse publisher = protocol.publisher();
 
         // Tell our mouse to eat cheese
-        dispatcher.eatCheese("cheddar");
+        publisher.eatCheese("cheddar");
 
         fieldMouse.latch.await();
     }
