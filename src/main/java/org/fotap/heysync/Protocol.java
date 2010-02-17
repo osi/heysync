@@ -20,31 +20,48 @@ import static org.fotap.heysync.Validation.isAsynchronable;
  * all registered subscribers.
  * <p/>
  * Method invocations on a dispatcher will result in the same method being invoked on all registered receivers.
+ * <p/>
+ * If creating multiple instances of a protocol, consider using a {@link Factory} to re-use generated classes
  *
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
 public class Protocol<T> {
     private final Map<Method, Channel<Object>> channels;
-    private final ClassCreatingClassloader loader = new ClassCreatingClassloader();
+    private final ClassCreatingClassloader loader;
     private final Class<T> type;
     private final T proxy;
 
     public static <T> Protocol<T> create(Class<T> type) {
-        if (!isAsynchronable(type)) {
-            throw new IllegalArgumentException(
-                String.format("Cannot create a protocol for %s. " +
-                              "It must be an interface that is marked with the %s annotation",
-                              type.getName(),
-                              Asynchronous.class.getName()));
-        }
-
-        return new Protocol<T>(type);
+        validate(type);
+        return new Protocol<T>(type, new ClassCreatingClassloader());
     }
 
-    private Protocol(Class<T> type) {
+    /**
+     * Create multiple protocols that share the same class loader for generated code
+     */
+    public static class Factory<T> {
+        private final ClassCreatingClassloader loader = new ClassCreatingClassloader();
+        private final Class<T> type;
+
+        public static <T> Factory<T> create(Class<T> type) {
+            validate(type);
+            return new Factory<T>(type);
+        }
+
+        private Factory(Class<T> type) {
+            this.type = type;
+        }
+
+        public Protocol<T> create() {
+            return new Protocol<T>(type, loader);
+        }
+    }
+
+    private Protocol(Class<T> type, ClassCreatingClassloader loader) {
         this.type = type;
         this.channels = createChannels(type);
-        this.proxy = loader.publisherFor(type, channels);
+        this.loader = loader;
+        this.proxy = this.loader.publisherFor(type, channels);
     }
 
     private Map<Method, Channel<Object>> createChannels(Class<T> type) {
@@ -101,5 +118,15 @@ public class Protocol<T> {
         }
 
         return as(channel);
+    }
+
+    private static <T> void validate(Class<T> type) {
+        if (!isAsynchronable(type)) {
+            throw new IllegalArgumentException(
+                String.format("Cannot create a protocol for %s. " +
+                              "It must be an interface that is marked with the %s annotation",
+                              type.getName(),
+                              Asynchronous.class.getName()));
+        }
     }
 }

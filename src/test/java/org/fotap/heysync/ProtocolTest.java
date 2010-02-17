@@ -30,6 +30,20 @@ public class ProtocolTest {
         executor.executeAllPending();
         verify(receiver).eatCheese("cheddar");
     }
+    
+    @Test
+    public void shouldCreateViaFactory() {
+        FiberStub executor = new FiberStub();
+
+        Protocol<Mouse> protocol = Protocol.Factory.create(Mouse.class).create();
+        Mouse receiver = mock(Mouse.class);
+        protocol.subscribe(executor, receiver);
+
+        protocol.publisher().eatCheese("cheddar");
+        verifyZeroInteractions(receiver);
+        executor.executeAllPending();
+        verify(receiver).eatCheese("cheddar");
+    }
 
     @Test
     public void shouldHandleMultipleSubscribers() {
