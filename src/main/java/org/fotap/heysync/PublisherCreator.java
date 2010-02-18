@@ -5,8 +5,6 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static org.fotap.heysync.AsmHelper.*;
@@ -18,19 +16,15 @@ import static org.objectweb.asm.Opcodes.*;
 class PublisherCreator<T> extends ClassCreator<T> {
     private final List<Method> methods;
 
-    PublisherCreator(Class<T> type, Collection<Method> methods) {
-        super(type, Type.getType("L" + Type.getInternalName(type) + "$Publisher;"));
-        this.methods = new ArrayList<Method>(methods);
-    }
-
-    List<Method> methods() {
-        return methods;
+    PublisherCreator(Class<T> type, Type outputType, List<Method> methods) {
+        super(type, outputType);
+        this.methods = methods;
     }
 
     @Override
     protected void createFields() {
         writer.visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "SIGNAL", objectType.getDescriptor(), null, null)
-            .visitEnd();
+                .visitEnd();
 
         for (Method method : methods) {
             createField(writer, method);
@@ -39,12 +33,12 @@ class PublisherCreator<T> extends ClassCreator<T> {
 
     private void createField(ClassWriter writer, Method method) {
         writer.visitField(ACC_PRIVATE + ACC_FINAL,
-                          fieldNameFor(method),
-                          publisherType.getDescriptor(),
-                          //Could put the generic signature... "Lorg/jetlang/channels/Publisher<Ljava/lang/String;>;",
-                          null,
-                          null)
-            .visitEnd();
+                fieldNameFor(method),
+                publisherType.getDescriptor(),
+                //Could put the generic signature... "Lorg/jetlang/channels/Publisher<Ljava/lang/String;>;",
+                null,
+                null)
+                .visitEnd();
     }
 
     @Override
@@ -54,7 +48,7 @@ class PublisherCreator<T> extends ClassCreator<T> {
     }
 
     private void staticInitializer() {
-        GeneratorAdapter adapter = method(ACC_STATIC,  asmMethod("void <clinit> ()"));
+        GeneratorAdapter adapter = method(ACC_STATIC, asmMethod("void <clinit> ()"));
         adapter.newInstance(objectType);
         adapter.dup();
         adapter.invokeConstructor(objectType, defaultConstructor);

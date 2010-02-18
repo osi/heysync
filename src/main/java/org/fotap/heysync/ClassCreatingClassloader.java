@@ -15,24 +15,28 @@ import java.util.Map;
 class ClassCreatingClassloader extends ClassLoader {
 
     <T> T publisherFor(Class<T> type, Map<Method, ? extends Publisher<?>> publishers) {
-        PublisherCreator<T> publisherCreator = new PublisherCreator<T>(type, publishers.keySet());
-        Class<? extends T> publisherClass = defineClass(publisherCreator);
-        Object[] initargs = publisherArguments(publisherCreator, publishers);
-        return newInstance(publisherClass, initargs);
+        List<Method> methods = new ArrayList<Method>(publishers.keySet());
+        Type outputType = publisherTypeFor(type);
+        return newInstance(loadOrDefine(outputType, new PublisherCreator<T>(type, outputType, methods)),
+                publisherArguments(publishers, methods));
     }
 
-    private <T> Object[] publisherArguments(PublisherCreator<T> publisherCreator,
-                                            Map<Method, ? extends Publisher<?>> publishers) {
-        List<Publisher<?>> arguments = new ArrayList<Publisher<?>>();
-        for (Method method : publisherCreator.methods()) {
-            arguments.add(publishers.get(method));
-        }
-        return arguments.toArray();
+    private static Type publisherTypeFor(Class<?> type) {
+        return Type.getType("L" + Type.getInternalName(type) + "$Publisher;");
     }
 
     <T, R> Callback<R> callbackFor(Method method, T receiver) {
-        Class<? extends Callback<R>> type = loadCallbackClass(method);
+        Type outputType = callbackTypeFor(method);
+        Class<? extends Callback<R>> type = loadOrDefine(outputType, new CallbackCreator<R>(outputType, method));
         return newInstance(type, receiver);
+    }
+
+    private Object[] publisherArguments(Map<Method, ? extends Publisher<?>> publishers, List<Method> methods) {
+        List<Publisher<?>> arguments = new ArrayList<Publisher<?>>();
+        for (Method method : methods) {
+            arguments.add(publishers.get(method));
+        }
+        return arguments.toArray();
     }
 
     private <T> T newInstance(Class<? extends T> type, Object... initargs) {
@@ -47,13 +51,12 @@ class ClassCreatingClassloader extends ClassLoader {
         return type.asSubclass(creator.type());
     }
 
-    private <R> Class<? extends Callback<R>> loadCallbackClass(Method method) {
-        Type type = callbackTypeFor(method);
-        Class<?> callbackClass = findLoadedClass(type.getClassName());
+    private <T> Class<? extends T> loadOrDefine(Type outputType, ClassCreator<T> creator) {
+        Class<?> callbackClass = findLoadedClass(outputType.getClassName());
         if (null != callbackClass) {
             return Cast.as(callbackClass);
         }
-        return defineClass(new CallbackCreator<R>(type, method));
+        return defineClass(creator);
     }
 
     private Type callbackTypeFor(Method method) {
