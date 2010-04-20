@@ -29,10 +29,10 @@ class CallbackCreator<T> extends ClassCreator<Callback<T>> {
     @Override
     protected void createFields() {
         writer.visitField(ACC_PRIVATE + ACC_FINAL,
-                          "receiver",
-                          receiverType.getDescriptor(),
-                          null,
-                          null).visitEnd();
+                "receiver",
+                receiverType.getDescriptor(),
+                null,
+                null).visitEnd();
     }
 
     @Override
@@ -51,17 +51,39 @@ class CallbackCreator<T> extends ClassCreator<Callback<T>> {
     @Override
     protected void implementMethods() {
         org.objectweb.asm.commons.Method stronglyTypedMethod =
-            asmMethod("void onMessage (" + parameterType.getClassName() + ")");
+                asmMethod("void onMessage (" + parameterType.getClassName() + ")");
 
         stronglyTyped(stronglyTypedMethod);
         if (hasParameter) {
             synthetic(stronglyTypedMethod);
         }
+        meaningfulToString();
+    }
+
+    private void meaningfulToString() {
+        GeneratorAdapter adapter = method(ACC_PUBLIC, toString);
+        adapter.newInstance(stringBuilder);
+        adapter.dup();
+        adapter.invokeConstructor(stringBuilder, stringBuilderConstructor);
+        adapter.push("[" + methodName() + " on ");
+        adapter.invokeVirtual(stringBuilder, appendString);
+        loadReceiver(adapter);
+        adapter.invokeVirtual(stringBuilder, appendObject);
+        adapter.push("]");
+        adapter.invokeVirtual(stringBuilder, appendString);
+        adapter.invokeVirtual(objectType, toString);
+        adapter.returnValue();
+        adapter.endMethod();
+    }
+
+    private String methodName() {
+        String[] strings = method.toGenericString().split(" ");
+        return strings[strings.length - 1];
     }
 
     private void synthetic(org.objectweb.asm.commons.Method stronglyTypedMethod) {
         GeneratorAdapter adapter = method(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
-                                          asmMethod("void onMessage (" + Object.class.getName() + ")"));
+                asmMethod("void onMessage (" + Object.class.getName() + ")"));
         adapter.loadThis();
         adapter.loadArg(0);
         adapter.checkCast(parameterType);
@@ -72,13 +94,17 @@ class CallbackCreator<T> extends ClassCreator<Callback<T>> {
 
     private void stronglyTyped(org.objectweb.asm.commons.Method method) {
         GeneratorAdapter adapter = method(ACC_PUBLIC, method);
-        adapter.loadThis();
-        adapter.getField(outputType(), "receiver", receiverType);
+        loadReceiver(adapter);
         if (hasParameter) {
             adapter.loadArg(0);
         }
         adapter.invokeInterface(receiverType, asmMethod(this.method));
         adapter.returnValue();
         adapter.endMethod();
+    }
+
+    private void loadReceiver(GeneratorAdapter adapter) {
+        adapter.loadThis();
+        adapter.getField(outputType(), "receiver", receiverType);
     }
 }

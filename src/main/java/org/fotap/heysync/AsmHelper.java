@@ -4,6 +4,7 @@ import org.jetlang.channels.Publisher;
 import org.jetlang.core.Callback;
 import org.objectweb.asm.Type;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import static org.fotap.heysync.Cast.as;
@@ -17,15 +18,23 @@ class AsmHelper {
     static final Type objectType;
     static final org.objectweb.asm.commons.Method defaultConstructor;
     static final org.objectweb.asm.commons.Method toString;
+    static final Type stringBuilder;
+    static final org.objectweb.asm.commons.Method stringBuilderConstructor;
+    static final org.objectweb.asm.commons.Method appendString;
+    static final org.objectweb.asm.commons.Method appendObject;
 
     static {
         publisherType = Type.getType(Publisher.class);
         objectType = Type.getType(Object.class);
+        stringBuilder = Type.getType(StringBuilder.class);
 
         try {
             publishMethod = asmMethod(Publisher.class.getMethod("publish", Object.class));
             defaultConstructor = org.objectweb.asm.commons.Method.getMethod(Object.class.getConstructor());
             toString = asmMethod(Object.class.getMethod("toString"));
+            appendString = asmMethod(StringBuilder.class.getMethod("append", String.class));
+            appendObject = asmMethod(StringBuilder.class.getMethod("append", Object.class));
+            stringBuilderConstructor = asmMethod(StringBuilder.class.getConstructor());
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Required members missing", e);
         }
@@ -33,6 +42,10 @@ class AsmHelper {
 
     static org.objectweb.asm.commons.Method asmMethod(Method method) {
         return org.objectweb.asm.commons.Method.getMethod(method);
+    }
+
+    static org.objectweb.asm.commons.Method asmMethod(Constructor constructor) {
+        return org.objectweb.asm.commons.Method.getMethod(constructor);
     }
 
     static <T> Class<Callback<T>> callback() {

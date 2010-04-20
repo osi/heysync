@@ -9,21 +9,21 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
 public class ClassCreatingClassloaderTest {
     @Test
-    public void shouldGenerateMedium() throws NoSuchMethodException {
+    public void shouldGeneratePublisher() throws NoSuchMethodException {
         ClassCreatingClassloader loader = new ClassCreatingClassloader();
 
         Publisher<String> publisher = mock(Publisher.class);
         Mouse mouse = loader.publisherFor(Mouse.class,
-                                          Collections.<Method, Publisher<?>>singletonMap(
-                                              Mouse.class.getMethod("eatCheese", String.class), publisher));
+                Collections.<Method, Publisher<?>>singletonMap(
+                        Mouse.class.getMethod("eatCheese", String.class), publisher));
 
         mouse.eatCheese("cheddar");
         verify(publisher).publish("cheddar");
@@ -49,12 +49,21 @@ public class ClassCreatingClassloaderTest {
     }
 
     @Test
+    public void shouldHaveMeaningfulToStringOnGeneratedCallbacks() throws NoSuchMethodException {
+        Mouse mouse = mock(Mouse.class);
+        when(mouse.toString()).thenReturn("underlying mouse");
+        Callback<String> callback = new ClassCreatingClassloader()
+                .callbackFor(Mouse.class.getMethod("eatCheese", String.class), mouse);
+        assertEquals("[org.fotap.heysync.Mouse.eatCheese(java.lang.String) on underlying mouse]", callback.toString());
+    }
+
+    @Test
     public void shouldCreateCallbackForMethod() throws NoSuchMethodException {
         Mouse mouse = mock(Mouse.class);
 
         Callback<Object> callback = new ClassCreatingClassloader().callbackFor(Mouse.class.getMethod("eatCheese",
-                                                                                                     String.class),
-                                                                               mouse);
+                String.class),
+                mouse);
         callback.onMessage("Cheddar");
 
         verify(mouse).eatCheese("Cheddar");
