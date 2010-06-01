@@ -1,5 +1,6 @@
 package org.fotap.heysync;
 
+import org.jetlang.core.SynchronousDisposingExecutor;
 import org.jetlang.fibers.FiberStub;
 import org.junit.Rule;
 import org.junit.Test;
@@ -105,4 +106,16 @@ public class ProtocolTest {
         protocol.channelFor(Object.class.getMethod("toString"), Object.class);
     }
 
+    @Test
+    public void shouldHandleExtendedInterfaces() {
+        LabMouse subscription = mock(LabMouse.class);
+
+        Protocol<LabMouse> protocol = Protocol.create(LabMouse.class);
+        protocol.subscribe(new SynchronousDisposingExecutor(), subscription);
+        protocol.publisher().runThroughMaze();
+        protocol.publisher().eatCheese("reward");
+        
+        verify(subscription).runThroughMaze();
+        verify(subscription).eatCheese("reward");
+    }
 }
