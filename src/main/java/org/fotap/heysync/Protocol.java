@@ -65,7 +65,7 @@ public class Protocol<T> {
     }
 
     private Map<Method, Channel<Object>> createChannels(Class<T> type) {
-        Method[] methods = type.getDeclaredMethods();
+        Method[] methods = type.getMethods();
         Map<Method, Channel<Object>> channels = new HashMap<Method, Channel<Object>>(methods.length);
         for (Method method : methods) {
             channels.put(method, new MemoryChannel<Object>());
