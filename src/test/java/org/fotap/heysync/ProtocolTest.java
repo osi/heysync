@@ -47,6 +47,34 @@ public class ProtocolTest {
     }
 
     @Test
+    public void shouldSendAsyncMessageWithArrays() {
+        FiberStub executor = new FiberStub();
+
+        Protocol<Mouse> protocol = Protocol.create(Mouse.class);
+        Mouse receiver = mock(Mouse.class);
+        protocol.subscribe(executor, receiver);
+
+        protocol.publisher().shoutWords("hello", "world");
+        verifyZeroInteractions(receiver);
+        executor.executeAllPending();
+        verify(receiver).shoutWords("hello", "world");
+    }
+
+    @Test
+    public void shouldSendAsyncMessageWithPrimitiveArrays() {
+        FiberStub executor = new FiberStub();
+
+        Protocol<Mouse> protocol = Protocol.create(Mouse.class);
+        Mouse receiver = mock(Mouse.class);
+        protocol.subscribe(executor, receiver);
+
+        protocol.publisher().reciteNumbers(2, 4, 6, 8);
+        verifyZeroInteractions(receiver);
+        executor.executeAllPending();
+        verify(receiver).reciteNumbers(2, 4, 6, 8);
+    }
+
+    @Test
     public void shouldBeAbleToCreateMultipleProxiesFromFactory() {
         Protocol.Factory<Mouse> factory = Protocol.Factory.create(Mouse.class);
         factory.create();
@@ -99,6 +127,7 @@ public class ProtocolTest {
         Protocol<Mouse> protocol = Protocol.create(Mouse.class);
         assertNotNull(protocol.channelFor(Mouse.class.getMethod("eatCheese", String.class), String.class));
         assertNotNull(protocol.channelFor(Mouse.class.getMethod("provokeCats", Integer.TYPE), Integer.TYPE));
+        assertNotNull(protocol.channelFor(Mouse.class.getMethod("shoutWords", String[].class), String[].class));
     }
 
     @Test

@@ -20,4 +20,18 @@ public class FieldMouse implements Mouse {
             System.out.println("hey mr stinky cat... look at me");
         }
     }
+
+    @Override
+    public void shoutWords(String... words) {
+        for (String word : words) {
+            System.out.println("Shouting: '" + word.toUpperCase() + "!'");
+        }
+    }
+
+    @Override
+    public void reciteNumbers(int... numbers) {
+        for (int number : numbers) {
+            System.out.println("Reciting number " + number);
+        }
+    }
 }

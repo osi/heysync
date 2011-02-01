@@ -25,6 +25,8 @@ public class HeysyncExample {
         // Tell our mouse to eat cheese and provoke cats
         publisher.eatCheese("cheddar");
         publisher.provokeCats(4);
+        publisher.shoutWords("cats", "really", "stink");
+        publisher.reciteNumbers(2, 4, 6, 8);
 
         fieldMouse.latch.await();
     }

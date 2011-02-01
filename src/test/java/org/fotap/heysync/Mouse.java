@@ -7,4 +7,6 @@ package org.fotap.heysync;
 public interface Mouse {
     void eatCheese(String flavor);
     void provokeCats(int howManyCats);
+    void shoutWords(String... words);
+    void reciteNumbers(int... numbers);
 }
