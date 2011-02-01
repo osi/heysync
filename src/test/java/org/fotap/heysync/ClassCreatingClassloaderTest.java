@@ -38,7 +38,7 @@ public class ClassCreatingClassloaderTest {
 
         Map<Method, Publisher<?>> publishers = new HashMap<Method, Publisher<?>>();
         publishers.put(Cat.class.getMethod("chaseYarn", String.class), yarnPublisher);
-        publishers.put(Cat.class.getMethod("updateLives", Integer.class), livesPublisher);
+        publishers.put(Cat.class.getMethod("updateLives", Integer.TYPE), livesPublisher);
 
         Cat cat = loader.publisherFor(Cat.class, publishers);
 

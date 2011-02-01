@@ -29,10 +29,6 @@ class Validation {
             throw new IllegalArgumentException(String.format(
                 "Cannot create a dispatcher for %s because it takes more than one parameter",
                 method.toGenericString()));
-        } else if (parameters.length > 0 && parameters[0].isPrimitive()) {
-            throw new IllegalArgumentException(String.format(
-                "Cannot create a dispatcher for %s because its parameter is a primitive type",
-                method.toGenericString()));
         }
     }
 

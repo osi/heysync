@@ -33,6 +33,20 @@ public class ProtocolTest {
     }
 
     @Test
+    public void shouldSendAsyncMessageWithPrimitive() {
+        FiberStub executor = new FiberStub();
+
+        Protocol<Mouse> protocol = Protocol.create(Mouse.class);
+        Mouse receiver = mock(Mouse.class);
+        protocol.subscribe(executor, receiver);
+
+        protocol.publisher().provokeCats(4);
+        verifyZeroInteractions(receiver);
+        executor.executeAllPending();
+        verify(receiver).provokeCats(4);
+    }
+
+    @Test
     public void shouldBeAbleToCreateMultipleProxiesFromFactory() {
         Protocol.Factory<Mouse> factory = Protocol.Factory.create(Mouse.class);
         factory.create();
@@ -84,6 +98,7 @@ public class ProtocolTest {
     public void shouldGetChannelForMethod() throws NoSuchMethodException {
         Protocol<Mouse> protocol = Protocol.create(Mouse.class);
         assertNotNull(protocol.channelFor(Mouse.class.getMethod("eatCheese", String.class), String.class));
+        assertNotNull(protocol.channelFor(Mouse.class.getMethod("provokeCats", Integer.TYPE), Integer.TYPE));
     }
 
     @Test

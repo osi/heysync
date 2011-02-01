@@ -22,8 +22,9 @@ public class HeysyncExample {
         // Get the publisher for all registered Mice
         Mouse publisher = protocol.publisher();
 
-        // Tell our mouse to eat cheese
+        // Tell our mouse to eat cheese and provoke cats
         publisher.eatCheese("cheddar");
+        publisher.provokeCats(4);
 
         fieldMouse.latch.await();
     }

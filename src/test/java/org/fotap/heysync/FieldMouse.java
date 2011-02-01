@@ -13,4 +13,11 @@ public class FieldMouse implements Mouse {
         System.out.println(flavor + " cheese! my favorite! nom nom nom");
         latch.countDown();
     }
+
+    @Override
+    public void provokeCats(int howManyCats) {
+        for (int i = 0; i < howManyCats; i++) {
+            System.out.println("hey mr stinky cat... look at me");
+        }
+    }
 }

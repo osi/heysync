@@ -16,19 +16,27 @@ public class JetlangExample {
         fiber.start();
 
         // Channel for messages to flow on
-        Channel<String> messages = new MemoryChannel<String>();
+        Channel<String> cheeseMessages = new MemoryChannel<String>();
+        Channel<Integer> provokeCatsMessages = new MemoryChannel<Integer>();
 
         // Create our FieldMouse and subscribe him to the channel
         final FieldMouse fieldMouse = new FieldMouse();
-        messages.subscribe(fiber, new Callback<String>() {
+        cheeseMessages.subscribe(fiber, new Callback<String>() {
             @Override
             public void onMessage(String message) {
                 fieldMouse.eatCheese(message);
             }
         });
+        provokeCatsMessages.subscribe(fiber, new Callback<Integer>() {
+            @Override
+            public void onMessage(Integer howMany) {
+                fieldMouse.provokeCats(howMany);
+            }
+        });
 
-        // Tell our mouse to eat cheese
-        messages.publish("cheddar");
+        // Tell our mouse to eat cheese and provoke cats
+        cheeseMessages.publish("cheddar");
+        provokeCatsMessages.publish(4);
 
         fieldMouse.latch.await();
     }

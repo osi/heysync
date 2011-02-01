@@ -8,5 +8,5 @@ public interface Cat {
 
     void chaseYarn(String color);
 
-    void updateLives(Integer count);
+    void updateLives(int count);
 }
