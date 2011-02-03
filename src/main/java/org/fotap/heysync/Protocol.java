@@ -101,7 +101,12 @@ public class Protocol<T> {
     }
 
     public <T> Channel<T> channelFor(Method method, Class<T> parameterType) {
-        if (method.getParameterTypes().length == 0) {
+        if (method.getParameterTypes().length > 1) {
+            if (!Object[].class.equals(parameterType)) {
+                throw new IllegalArgumentException("Must specify java.lang.Object[] as parameter type on multiple arg method: "
+                                                   + method.toGenericString());
+            }
+        } else if (method.getParameterTypes().length == 0) {
             if (!Object.class.equals(parameterType)) {
                 throw new IllegalArgumentException("Must specify java.lang.Object as parameter type on no-arg method: "
                                                    + method.toGenericString());

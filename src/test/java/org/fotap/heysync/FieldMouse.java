@@ -16,8 +16,13 @@ public class FieldMouse implements Mouse {
 
     @Override
     public void provokeCats(int howManyCats) {
+        provokeCatsWithTaunt(howManyCats, "look at me");
+    }
+
+    @Override
+    public void provokeCatsWithTaunt(int howManyCats, String message) {
         for (int i = 0; i < howManyCats; i++) {
-            System.out.println("hey mr stinky cat... look at me");
+            System.out.println("hey mr stinky cat... " + message);
         }
     }
 

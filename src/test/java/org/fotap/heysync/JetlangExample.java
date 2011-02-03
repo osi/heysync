@@ -18,6 +18,7 @@ public class JetlangExample {
         // Channel for messages to flow on
         Channel<String> cheeseMessages = new MemoryChannel<String>();
         Channel<Integer> provokeCatsMessages = new MemoryChannel<Integer>();
+        Channel<Object[]> provokeCatsWithTauntMessages = new MemoryChannel<Object[]>();
         Channel<String[]> shoutWordsMessages = new MemoryChannel<String[]>();
         Channel<int[]> reciteNumbersMessages = new MemoryChannel<int[]>();
 
@@ -35,6 +36,12 @@ public class JetlangExample {
                 fieldMouse.provokeCats(howMany);
             }
         });
+        provokeCatsWithTauntMessages.subscribe(fiber, new Callback<Object[]>() {
+            @Override
+            public void onMessage(Object[] args) {
+                fieldMouse.provokeCatsWithTaunt((Integer)args[0], (String)args[1]);
+            }
+        });
         shoutWordsMessages.subscribe(fiber, new Callback<String[]>() {
             @Override
             public void onMessage(String[] words) {
@@ -50,7 +57,8 @@ public class JetlangExample {
 
         // Tell our mouse to eat cheese and provoke cats
         cheeseMessages.publish("cheddar");
-        provokeCatsMessages.publish(4);
+        provokeCatsMessages.publish(2);
+        provokeCatsWithTauntMessages.publish(new Object[]{3, "I have your cheese"});
         shoutWordsMessages.publish(new String[]{"cats", "really", "stink"});
         reciteNumbersMessages.publish(new int[]{2, 4, 6, 8});
 

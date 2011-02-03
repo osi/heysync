@@ -19,15 +19,9 @@ class Validation {
     }
 
     static void validateMethod(Method method) {
-        Class<?>[] parameters = method.getParameterTypes();
-
         if (!method.getReturnType().equals(Void.TYPE)) {
             throw new IllegalArgumentException(String.format(
                 "Cannot create a dispatcher for %s because it does not return void",
-                method.toGenericString()));
-        } else if (parameters.length > 1) {
-            throw new IllegalArgumentException(String.format(
-                "Cannot create a dispatcher for %s because it takes more than one parameter",
                 method.toGenericString()));
         }
     }
