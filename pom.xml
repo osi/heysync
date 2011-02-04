@@ -4,7 +4,7 @@
     <groupId>org.fotap</groupId>
     <artifactId>heysync</artifactId>
 
-    <version>0.10-SNAPSHOT</version>
+    <version>0.10</version>
     <name>heysync</name>
     <url>http://github.com/osi/heysync/</url>
 
