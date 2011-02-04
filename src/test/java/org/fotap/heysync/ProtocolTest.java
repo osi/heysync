@@ -75,6 +75,20 @@ public class ProtocolTest {
     }
 
     @Test
+    public void shouldSendAsyncMessageWithMultipleParameters() {
+        FiberStub executor = new FiberStub();
+
+        Protocol<Mouse> protocol = Protocol.create(Mouse.class);
+        Mouse receiver = mock(Mouse.class);
+        protocol.subscribe(executor, receiver);
+
+        protocol.publisher().provokeCatsWithTaunt(4, "mice are clever");
+        verifyZeroInteractions(receiver);
+        executor.executeAllPending();
+        verify(receiver).provokeCatsWithTaunt(4, "mice are clever");
+    }
+
+    @Test
     public void shouldBeAbleToCreateMultipleProxiesFromFactory() {
         Protocol.Factory<Mouse> factory = Protocol.Factory.create(Mouse.class);
         factory.create();
@@ -127,6 +141,7 @@ public class ProtocolTest {
         Protocol<Mouse> protocol = Protocol.create(Mouse.class);
         assertNotNull(protocol.channelFor(Mouse.class.getMethod("eatCheese", String.class), String.class));
         assertNotNull(protocol.channelFor(Mouse.class.getMethod("provokeCats", Integer.TYPE), Integer.TYPE));
+        assertNotNull(protocol.channelFor(Mouse.class.getMethod("provokeCatsWithTaunt", Integer.TYPE, String.class), Object[].class));
         assertNotNull(protocol.channelFor(Mouse.class.getMethod("shoutWords", String[].class), String[].class));
     }
 

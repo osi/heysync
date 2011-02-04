@@ -17,8 +17,6 @@ import static org.objectweb.asm.Opcodes.*;
 class CallbackCreator<T> extends ClassCreator<Callback<T>> {
     private final Method method;
     private final Type receiverType;
-    private final Type parameterType;
-    private final boolean hasParameter;
 
     private static final Map<Type, Type> primitivesToBoxedTypes = new HashMap<Type, Type>();
 
@@ -37,8 +35,6 @@ class CallbackCreator<T> extends ClassCreator<Callback<T>> {
         super(AsmHelper.<T>callback(), outputType);
         this.method = method;
         this.receiverType = Type.getType(method.getDeclaringClass());
-        this.hasParameter = method.getParameterTypes().length > 0;
-        this.parameterType = hasParameter ? Type.getType(method.getParameterTypes()[0]) : objectType;
     }
 
     @Override
@@ -65,15 +61,27 @@ class CallbackCreator<T> extends ClassCreator<Callback<T>> {
 
     @Override
     protected void implementMethods() {
-        Type boxed = primitivesToBoxedTypes.get(parameterType);
+        Type callbackType = getCallbackType();
         org.objectweb.asm.commons.Method stronglyTypedMethod =
-                asmMethod("void onMessage (" + (boxed != null ? boxed : parameterType).getClassName() + ")");
+                asmMethod("void onMessage (" + callbackType.getClassName() + ")");
 
-        stronglyTyped(stronglyTypedMethod);
-        if (hasParameter) {
-            synthetic(stronglyTypedMethod);
+        stronglyTyped(stronglyTypedMethod, method.getParameterTypes());
+        if (!callbackType.equals(objectType)) {
+            synthetic(stronglyTypedMethod, callbackType);
         }
         meaningfulToString();
+    }
+
+    private Type getCallbackType() {
+        if (method.getParameterTypes().length == 0) {
+            return objectType;
+        } else if (method.getParameterTypes().length == 1) {
+            Type paramType = Type.getType(method.getParameterTypes()[0]);
+            Type boxed = primitivesToBoxedTypes.get(paramType);
+            return boxed != null ? boxed : paramType;
+        } else {
+            return Type.getType(Object[].class);
+        }
     }
 
     private void meaningfulToString() {
@@ -97,32 +105,21 @@ class CallbackCreator<T> extends ClassCreator<Callback<T>> {
         return strings[strings.length - 1];
     }
 
-    private void synthetic(org.objectweb.asm.commons.Method stronglyTypedMethod) {
-        Type boxed = primitivesToBoxedTypes.get(parameterType);
+    private void synthetic(org.objectweb.asm.commons.Method stronglyTypedMethod, Type callbackType) {
         GeneratorAdapter adapter = method(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
                 asmMethod("void onMessage (" + Object.class.getName() + ")"));
         adapter.loadThis();
         adapter.loadArg(0);
-        if (boxed != null) {
-            adapter.unbox(boxed);
-            adapter.checkCast(boxed);
-        } else {
-            adapter.checkCast(parameterType);
-        }
+        adapter.checkCast(callbackType);
         adapter.invokeVirtual(outputType(), stronglyTypedMethod);
         adapter.returnValue();
         adapter.endMethod();
     }
 
-    private void stronglyTyped(org.objectweb.asm.commons.Method method) {
+    private void stronglyTyped(org.objectweb.asm.commons.Method method, Class<?>[] paramTypes) {
         GeneratorAdapter adapter = method(ACC_PUBLIC, method);
         loadReceiver(adapter);
-        if (hasParameter) {
-            adapter.loadArg(0);
-            if (primitivesToBoxedTypes.containsKey(parameterType)) {
-                adapter.unbox(parameterType);
-            }
-        }
+        loadArguments(adapter, paramTypes);
         adapter.invokeInterface(receiverType, asmMethod(this.method));
         adapter.returnValue();
         adapter.endMethod();
@@ -131,5 +128,29 @@ class CallbackCreator<T> extends ClassCreator<Callback<T>> {
     private void loadReceiver(GeneratorAdapter adapter) {
         adapter.loadThis();
         adapter.getField(outputType(), "receiver", receiverType);
+    }
+
+    private void loadArguments(GeneratorAdapter adapter, Class<?>[] paramTypes) {
+        if (paramTypes.length == 1) {
+            adapter.loadArg(0);
+            Type type = Type.getType(paramTypes[0]);
+            if (primitivesToBoxedTypes.containsKey(type)) {
+                adapter.unbox(type);
+            }
+        } else if (paramTypes.length > 1) {
+            for (int i = 0; i < paramTypes.length; i++) {
+                adapter.loadArg(0);
+                adapter.push(i);
+                adapter.arrayLoad(objectType);
+                Type type = Type.getType(paramTypes[i]);
+                Type boxed = primitivesToBoxedTypes.get(type);
+                if (boxed != null) {
+                    adapter.checkCast(boxed);
+                    adapter.unbox(type);
+                } else {
+                    adapter.checkCast(type);
+                }
+            }
+        } // else paramTypes.length == 0: nothing to do
     }
 }

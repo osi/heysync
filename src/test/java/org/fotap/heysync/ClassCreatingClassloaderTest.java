@@ -52,9 +52,11 @@ public class ClassCreatingClassloaderTest {
     public void shouldHaveMeaningfulToStringOnGeneratedCallbacks() throws NoSuchMethodException {
         Mouse mouse = mock(Mouse.class);
         when(mouse.toString()).thenReturn("underlying mouse");
-        Callback<String> callback = new ClassCreatingClassloader()
-                .callbackFor(Mouse.class.getMethod("eatCheese", String.class), mouse);
-        assertEquals("[org.fotap.heysync.Mouse.eatCheese(java.lang.String) on underlying mouse]", callback.toString());
+        ClassCreatingClassloader classloader = new ClassCreatingClassloader();
+        assertEquals("[org.fotap.heysync.Mouse.eatCheese(java.lang.String) on underlying mouse]",
+                classloader.callbackFor(Mouse.class.getMethod("eatCheese", String.class), mouse).toString());
+        assertEquals("[org.fotap.heysync.Mouse.provokeCatsWithTaunt(int,java.lang.String) on underlying mouse]",
+                classloader.callbackFor(Mouse.class.getMethod("provokeCatsWithTaunt", Integer.TYPE, String.class), mouse).toString());
     }
 
     @Test

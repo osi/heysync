@@ -102,7 +102,11 @@ class PublisherCreator<T> extends ClassCreator<T> {
     }
 
     private void loadMessage(Method method, GeneratorAdapter adapter) {
-        if (method.getParameterTypes().length > 0) {
+        Class<?>[] paramTypes = method.getParameterTypes();
+        if (paramTypes.length > 1) {
+            // Convert all method args into Object[] and push on to stack.
+            adapter.loadArgArray();
+        } else if (paramTypes.length == 1) {
             adapter.loadArg(0);
             Class<?> paramType = method.getParameterTypes()[0];
             if (paramType.isPrimitive()) {
