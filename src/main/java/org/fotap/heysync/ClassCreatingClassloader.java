@@ -67,7 +67,7 @@ class ClassCreatingClassloader extends ClassLoader {
                 .append(method.getName());
 
         for (Class<?> type : method.getParameterTypes()) {
-            builder.append("$").append(type.getName().replace('.', '$'));
+            builder.append("$").append(type.getName().replace('.', '$').replace(':', '$').replace('[', '$').replace(']', '$'));
         }
 
         builder.append(";");
