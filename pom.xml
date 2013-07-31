@@ -21,8 +21,8 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/osi/heysync.git</connection>
-        <url>scm:git:https://github.com/osi/heysync.git</url>
+        <connection>scm:git:git://github.com/osi/heysync.git</connection>
+        <url>scm:git:git://github.com/osi/heysync.git</url>
     </scm>
 
     <build>
