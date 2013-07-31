@@ -51,7 +51,7 @@ class ClassCreatingClassloader extends ClassLoader {
         return type.asSubclass(creator.type());
     }
 
-    private <T> Class<? extends T> loadOrDefine(Type outputType, ClassCreator<T> creator) {
+    private synchronized <T> Class<? extends T> loadOrDefine(Type outputType, ClassCreator<T> creator) {
         Class<?> callbackClass = findLoadedClass(outputType.getClassName());
         if (null != callbackClass) {
             return Cast.as(callbackClass);
