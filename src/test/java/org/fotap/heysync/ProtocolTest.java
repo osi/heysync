@@ -173,8 +173,18 @@ public class ProtocolTest {
         protocol.subscribe(new SynchronousDisposingExecutor(), subscription);
         protocol.publisher().runThroughMaze();
         protocol.publisher().eatCheese("reward");
-        
+
         verify(subscription).runThroughMaze();
         verify(subscription).eatCheese("reward");
+    }
+
+    @Test
+    public void shouldCreatePublisherForInterfaceThatHasSuperInterfacesWithClashingSignatures() throws Exception {
+        Protocol<AB> protocol = Protocol.create(AB.class);
+        AB mock = mock(AB.class);
+        protocol.subscribe(new SynchronousDisposingExecutor(), mock);
+
+        protocol.publisher().something("cheddar");
+        verify(mock).something("cheddar");
     }
 }

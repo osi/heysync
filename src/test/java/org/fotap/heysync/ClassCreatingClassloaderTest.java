@@ -70,4 +70,5 @@ public class ClassCreatingClassloaderTest {
 
         verify(mouse).eatCheese("Cheddar");
     }
+
 }

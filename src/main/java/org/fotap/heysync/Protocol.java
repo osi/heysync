@@ -8,7 +8,9 @@ import org.jetlang.core.DisposingExecutor;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.fotap.heysync.Cast.as;
 import static org.fotap.heysync.Validation.isAsynchronable;
@@ -67,8 +69,11 @@ public class Protocol<T> {
     private Map<Method, Channel<Object>> createChannels(Class<T> type) {
         Method[] methods = type.getMethods();
         Map<Method, Channel<Object>> channels = new HashMap<Method, Channel<Object>>(methods.length);
+        Set<org.objectweb.asm.commons.Method> unique = new HashSet<org.objectweb.asm.commons.Method>();
         for (Method method : methods) {
-            channels.put(method, new MemoryChannel<Object>());
+            if (unique.add(org.objectweb.asm.commons.Method.getMethod(method))) {
+                channels.put(method, new MemoryChannel<Object>());
+            }
         }
         return channels;
     }
@@ -104,16 +109,16 @@ public class Protocol<T> {
         if (method.getParameterTypes().length > 1) {
             if (!Object[].class.equals(parameterType)) {
                 throw new IllegalArgumentException("Must specify java.lang.Object[] as parameter type on multiple arg method: "
-                                                   + method.toGenericString());
+                        + method.toGenericString());
             }
         } else if (method.getParameterTypes().length == 0) {
             if (!Object.class.equals(parameterType)) {
                 throw new IllegalArgumentException("Must specify java.lang.Object as parameter type on no-arg method: "
-                                                   + method.toGenericString());
+                        + method.toGenericString());
             }
         } else if (!method.getParameterTypes()[0].equals(parameterType)) {
             throw new IllegalArgumentException("Specified parameter type " + parameterType.getName()
-                                               + " is not what the method requires: " + method.toGenericString());
+                    + " is not what the method requires: " + method.toGenericString());
         }
 
         Channel<Object> channel = channels.get(method);
@@ -128,10 +133,10 @@ public class Protocol<T> {
     private static <T> void validate(Class<T> type) {
         if (!isAsynchronable(type)) {
             throw new IllegalArgumentException(
-                String.format("Cannot create a protocol for %s. " +
-                              "It must be an interface that is marked with the %s annotation",
-                              type.getName(),
-                              Asynchronous.class.getName()));
+                    String.format("Cannot create a protocol for %s. " +
+                            "It must be an interface that is marked with the %s annotation",
+                            type.getName(),
+                            Asynchronous.class.getName()));
         }
     }
 }

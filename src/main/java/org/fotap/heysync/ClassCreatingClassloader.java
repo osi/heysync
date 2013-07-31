@@ -45,7 +45,8 @@ class ClassCreatingClassloader extends ClassLoader {
 
     private <T> Class<? extends T> defineClass(ClassCreator<T> creator) {
         byte[] bytes = creator.bytes();
-// new ClassReader(bytes).accept(new ASMifierClassVisitor(new PrintWriter(System.out)), ClassReader.SKIP_DEBUG );
+//        new ClassReader(bytes).accept(new TraceClassVisitor(null, new ASMifier(), new PrintWriter(System.out)),
+//                ClassReader.SKIP_DEBUG);
         Class<?> type = defineClass(creator.outputType().getClassName(), bytes, 0, bytes.length);
         resolveClass(type);
         return type.asSubclass(creator.type());
