@@ -53,7 +53,7 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
-                                    <include>asm:*</include>
+                                    <include>org.ow2.asm:*</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
