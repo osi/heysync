@@ -1,13 +1,10 @@
 package org.fotap.heysync;
 
 import org.jetlang.channels.Publisher;
-import org.jetlang.core.Callback;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-
-import static org.fotap.heysync.Cast.as;
 
 /**
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
@@ -46,10 +43,6 @@ class AsmHelper {
 
     static org.objectweb.asm.commons.Method asmMethod(Constructor constructor) {
         return org.objectweb.asm.commons.Method.getMethod(constructor);
-    }
-
-    static <T> Class<Callback<T>> callback() {
-        return as(Callback.class);
     }
 
     static org.objectweb.asm.commons.Method asmMethod(String declaration) {

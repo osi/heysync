@@ -5,7 +5,6 @@ import org.jetlang.core.Callback;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,12 +17,15 @@ import static org.mockito.Mockito.*;
 public class ClassCreatingClassloaderTest {
     @Test
     public void shouldGeneratePublisher() throws NoSuchMethodException {
-        ClassCreatingClassloader loader = new ClassCreatingClassloader();
+        ClassCreatingClassloader<Mouse> loader = new ClassCreatingClassloader(Mouse.class);
 
         Publisher<String> publisher = mock(Publisher.class);
-        Mouse mouse = loader.publisherFor(Mouse.class,
-                Collections.<Method, Publisher<?>>singletonMap(
-                        Mouse.class.getMethod("eatCheese", String.class), publisher));
+        Map<Method, Publisher<?>> publishers = new HashMap<>();
+        for (Method method : loader.methods()) {
+            publishers.put(method, null);
+        }
+        publishers.put(Mouse.class.getMethod("eatCheese", String.class), publisher);
+        Mouse mouse = loader.publisher(publishers);
 
         mouse.eatCheese("cheddar");
         verify(publisher).publish("cheddar");
@@ -31,7 +33,7 @@ public class ClassCreatingClassloaderTest {
 
     @Test
     public void shouldNotGetTwoPublishersBackwards() throws NoSuchMethodException {
-        ClassCreatingClassloader loader = new ClassCreatingClassloader();
+        ClassCreatingClassloader<Cat> loader = new ClassCreatingClassloader(Cat.class);
 
         Publisher<String> yarnPublisher = mock(Publisher.class);
         Publisher<Integer> livesPublisher = mock(Publisher.class);
@@ -40,7 +42,7 @@ public class ClassCreatingClassloaderTest {
         publishers.put(Cat.class.getMethod("chaseYarn", String.class), yarnPublisher);
         publishers.put(Cat.class.getMethod("updateLives", Integer.TYPE), livesPublisher);
 
-        Cat cat = loader.publisherFor(Cat.class, publishers);
+        Cat cat = loader.publisher(publishers);
 
         cat.chaseYarn("white");
         cat.updateLives(7);
@@ -52,7 +54,7 @@ public class ClassCreatingClassloaderTest {
     public void shouldHaveMeaningfulToStringOnGeneratedCallbacks() throws NoSuchMethodException {
         Mouse mouse = mock(Mouse.class);
         when(mouse.toString()).thenReturn("underlying mouse");
-        ClassCreatingClassloader classloader = new ClassCreatingClassloader();
+        ClassCreatingClassloader classloader = new ClassCreatingClassloader(Mouse.class);
         assertEquals("[org.fotap.heysync.Mouse.eatCheese(java.lang.String) on underlying mouse]",
                 classloader.callbackFor(Mouse.class.getMethod("eatCheese", String.class), mouse).toString());
         assertEquals("[org.fotap.heysync.Mouse.provokeCatsWithTaunt(int,java.lang.String) on underlying mouse]",
@@ -63,7 +65,7 @@ public class ClassCreatingClassloaderTest {
     public void shouldCreateCallbackForMethod() throws NoSuchMethodException {
         Mouse mouse = mock(Mouse.class);
 
-        Callback<Object> callback = new ClassCreatingClassloader().callbackFor(Mouse.class.getMethod("eatCheese",
+        Callback<Object> callback = new ClassCreatingClassloader(Mouse.class).callbackFor(Mouse.class.getMethod("eatCheese",
                 String.class),
                 mouse);
         callback.onMessage("Cheddar");

@@ -8,9 +8,8 @@ import org.jetlang.core.DisposingExecutor;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.fotap.heysync.Cast.as;
 import static org.fotap.heysync.Validation.isAsynchronable;
@@ -29,20 +28,20 @@ import static org.fotap.heysync.Validation.isAsynchronable;
  */
 public class Protocol<T> {
     private final Map<Method, Channel<Object>> channels;
-    private final ClassCreatingClassloader loader;
+    private final ClassCreatingClassloader<T> loader;
     private final Class<T> type;
     private final T proxy;
 
     public static <T> Protocol<T> create(Class<T> type) {
         validate(type);
-        return new Protocol<T>(type, new ClassCreatingClassloader());
+        return new Protocol<T>(type, new ClassCreatingClassloader<T>(type));
     }
 
     /**
      * Create multiple protocols that share the same class loader for generated code
      */
     public static class Factory<T> {
-        private final ClassCreatingClassloader loader = new ClassCreatingClassloader();
+        private final ClassCreatingClassloader<T> loader;
         private final Class<T> type;
 
         public static <T> Factory<T> create(Class<T> type) {
@@ -52,6 +51,7 @@ public class Protocol<T> {
 
         private Factory(Class<T> type) {
             this.type = type;
+            this.loader = new ClassCreatingClassloader<T>(type);
         }
 
         public Protocol<T> create() {
@@ -59,21 +59,17 @@ public class Protocol<T> {
         }
     }
 
-    private Protocol(Class<T> type, ClassCreatingClassloader loader) {
+    private Protocol(Class<T> type, ClassCreatingClassloader<T> loader) {
         this.type = type;
-        this.channels = createChannels(type);
+        this.channels = createChannels(loader.methods());
         this.loader = loader;
-        this.proxy = this.loader.publisherFor(type, channels);
+        this.proxy = loader.publisher(channels);
     }
 
-    private Map<Method, Channel<Object>> createChannels(Class<T> type) {
-        Method[] methods = type.getMethods();
-        Map<Method, Channel<Object>> channels = new HashMap<Method, Channel<Object>>(methods.length);
-        Set<org.objectweb.asm.commons.Method> unique = new HashSet<org.objectweb.asm.commons.Method>();
+    private Map<Method, Channel<Object>> createChannels(List<Method> methods) {
+        Map<Method, Channel<Object>> channels = new HashMap<Method, Channel<Object>>(methods.size());
         for (Method method : methods) {
-            if (unique.add(org.objectweb.asm.commons.Method.getMethod(method))) {
-                channels.put(method, new MemoryChannel<Object>());
-            }
+            channels.put(method, new MemoryChannel<Object>());
         }
         return channels;
     }

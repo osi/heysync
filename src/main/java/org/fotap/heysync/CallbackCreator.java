@@ -14,7 +14,7 @@ import static org.objectweb.asm.Opcodes.*;
 /**
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
-class CallbackCreator<T> extends ClassCreator<Callback<T>> {
+class CallbackCreator extends ClassCreator<Callback> {
     private final Method method;
     private final Type receiverType;
 
@@ -32,7 +32,7 @@ class CallbackCreator<T> extends ClassCreator<Callback<T>> {
     }
 
     public CallbackCreator(Type outputType, Method method) {
-        super(AsmHelper.<T>callback(), outputType);
+        super(Callback.class, outputType);
         this.method = method;
         this.receiverType = Type.getType(method.getDeclaringClass());
     }
