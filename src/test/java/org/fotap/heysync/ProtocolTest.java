@@ -187,4 +187,18 @@ public class ProtocolTest {
         protocol.publisher().something("cheddar");
         verify(mock).something("cheddar");
     }
+
+    @Test
+    public void shouldCreatePublisherForClassesWithMethodOverloading() throws Exception {
+        Protocol<Overloaded> protocol = Protocol.create(Overloaded.class);
+        Overloaded mock = mock(Overloaded.class);
+        protocol.subscribe(new SynchronousDisposingExecutor(), mock);
+
+        protocol.publisher().doSomething("cheddar");
+        verify(mock).doSomething("cheddar");
+
+        protocol.publisher().doSomething("cheddar", "beer");
+        verify(mock).doSomething("cheddar", "beer");
+        verifyNoMoreInteractions(mock);
+    }
 }

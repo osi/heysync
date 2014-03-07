@@ -26,14 +26,14 @@ class PublisherCreator<T> extends ClassCreator<T> {
         writer.visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, "SIGNAL", objectType.getDescriptor(), null, null)
                 .visitEnd();
 
-        for (Method method : methods) {
-            createField(writer, method);
+        for (int i = 0; i < methods.size(); i++) {
+            createField(writer, methods.get(i), i);
         }
     }
 
-    private void createField(ClassWriter writer, Method method) {
+    private void createField(ClassWriter writer, Method method, int index) {
         writer.visitField(ACC_PRIVATE + ACC_FINAL,
-                fieldNameFor(method),
+                fieldNameFor(method, index),
                 publisherType.getDescriptor(),
                 //Could put the generic signature... "Lorg/jetlang/channels/Publisher<Ljava/lang/String;>;",
                 null,
@@ -63,10 +63,10 @@ class PublisherCreator<T> extends ClassCreator<T> {
         adapter.invokeConstructor(objectType, defaultConstructor);
         int arg = 0;
 
-        for (Method method : methods) {
+        for (int i = 0; i < methods.size(); i++) {
             adapter.loadThis();
             adapter.loadArg(arg++);
-            adapter.putField(outputType(), fieldNameFor(method), publisherType);
+            adapter.putField(outputType(), fieldNameFor(methods.get(i), i), publisherType);
         }
 
         adapter.returnValue();
@@ -86,15 +86,15 @@ class PublisherCreator<T> extends ClassCreator<T> {
 
     @Override
     protected void implementMethods() {
-        for (Method method : methods) {
-            implement(method);
+        for (int i = 0; i < methods.size(); i++) {
+            implement(methods.get(i), i);
         }
     }
 
-    private void implement(Method method) {
+    private void implement(Method method, int index) {
         GeneratorAdapter adapter = method(ACC_PUBLIC, asmMethod(method));
         adapter.loadThis();
-        adapter.getField(outputType(), fieldNameFor(method), publisherType);
+        adapter.getField(outputType(), fieldNameFor(method, index), publisherType);
         loadMessage(method, adapter);
         adapter.invokeInterface(publisherType, publishMethod);
         adapter.returnValue();
@@ -117,8 +117,7 @@ class PublisherCreator<T> extends ClassCreator<T> {
         }
     }
 
-    private String fieldNameFor(Method method) {
-        // fails for multiple methods with the same name
-        return method.getName() + "Publisher";
+    private String fieldNameFor(Method method, int index) {
+        return method.getName() + "Publisher" + index;
     }
 }
