@@ -18,6 +18,8 @@ class ClassCreatingClassloader<T> extends ClassLoader {
     private final List<Method> methods;
 
     ClassCreatingClassloader(Class<T> type) {
+        super(determineParent());
+
         methods = uniqueMethodsForType(type);
         publisherType = publisherTypeFor(type);
         publisherClass = defineClass(new PublisherCreator<T>(type, publisherType, methods));
@@ -27,6 +29,15 @@ class ClassCreatingClassloader<T> extends ClassLoader {
             Type outputType = callbackTypeFor(method);
             subscriberClasses.put(method, defineClass(new CallbackCreator(outputType, method)));
         }
+    }
+
+    private static ClassLoader determineParent() {
+        ClassLoader context = Thread.currentThread().getContextClassLoader();
+        if (null != context) {
+            return context;
+        }
+
+        return getSystemClassLoader();
     }
 
     private static <T> List<Method> uniqueMethodsForType(Class<T> type) {
