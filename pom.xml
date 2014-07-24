@@ -4,7 +4,7 @@
     <groupId>org.fotap</groupId>
     <artifactId>heysync</artifactId>
 
-    <version>0.18</version>
+    <version>0.19-SNAPSHOT</version>
     <name>heysync</name>
     <url>http://github.com/osi/heysync/</url>
 
@@ -23,7 +23,7 @@
     <scm>
         <connection>scm:git:git@github.com:osi/heysync.git</connection>
         <url>scm:git:git@github.com:osi/heysync.git</url>
-        <tag>heysync-0.18</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <build>
