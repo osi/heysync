@@ -14,10 +14,10 @@ import static org.mockito.Mockito.*;
 /**
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
-public class ClassCreatingClassloaderTest {
+public class ClassCreatingClassLoaderTest {
     @Test
     public void shouldGeneratePublisher() throws NoSuchMethodException {
-        ClassCreatingClassloader<Mouse> loader = new ClassCreatingClassloader(Mouse.class);
+        ClassCreatingClassLoader<Mouse> loader = new ClassCreatingClassLoader(Mouse.class);
 
         Publisher<String> publisher = mock(Publisher.class);
         Map<Method, Publisher<?>> publishers = new HashMap<>();
@@ -33,12 +33,12 @@ public class ClassCreatingClassloaderTest {
 
     @Test
     public void shouldNotGetTwoPublishersBackwards() throws NoSuchMethodException {
-        ClassCreatingClassloader<Cat> loader = new ClassCreatingClassloader(Cat.class);
+        ClassCreatingClassLoader<Cat> loader = new ClassCreatingClassLoader(Cat.class);
 
         Publisher<String> yarnPublisher = mock(Publisher.class);
         Publisher<Integer> livesPublisher = mock(Publisher.class);
 
-        Map<Method, Publisher<?>> publishers = new HashMap<Method, Publisher<?>>();
+        Map<Method, Publisher<?>> publishers = new HashMap<>();
         publishers.put(Cat.class.getMethod("chaseYarn", String.class), yarnPublisher);
         publishers.put(Cat.class.getMethod("updateLives", Integer.TYPE), livesPublisher);
 
@@ -54,7 +54,7 @@ public class ClassCreatingClassloaderTest {
     public void shouldHaveMeaningfulToStringOnGeneratedCallbacks() throws NoSuchMethodException {
         Mouse mouse = mock(Mouse.class);
         when(mouse.toString()).thenReturn("underlying mouse");
-        ClassCreatingClassloader classloader = new ClassCreatingClassloader(Mouse.class);
+        ClassCreatingClassLoader classloader = new ClassCreatingClassLoader(Mouse.class);
         assertEquals("[org.fotap.heysync.Mouse.eatCheese(java.lang.String) on underlying mouse]",
                 classloader.callbackFor(Mouse.class.getMethod("eatCheese", String.class), mouse).toString());
         assertEquals("[org.fotap.heysync.Mouse.provokeCatsWithTaunt(int,java.lang.String) on underlying mouse]",
@@ -65,8 +65,8 @@ public class ClassCreatingClassloaderTest {
     public void shouldCreateCallbackForMethod() throws NoSuchMethodException {
         Mouse mouse = mock(Mouse.class);
 
-        Callback<Object> callback = new ClassCreatingClassloader(Mouse.class).callbackFor(Mouse.class.getMethod("eatCheese",
-                String.class),
+        Callback<Object> callback = new ClassCreatingClassLoader(Mouse.class).callbackFor(Mouse.class.getMethod("eatCheese",
+                        String.class),
                 mouse);
         callback.onMessage("Cheddar");
 

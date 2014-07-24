@@ -10,19 +10,18 @@ import java.util.*;
 /**
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
-class ClassCreatingClassloader<T> extends ClassLoader {
+class ClassCreatingClassLoader<PT> extends ClassLoader {
 
-    private final Type publisherType;
-    private final Class<? extends T> publisherClass;
+    private final Class<? extends PT> publisherClass;
     private final Map<Method, Class<? extends Callback>> subscriberClasses;
     private final List<Method> methods;
 
-    ClassCreatingClassloader(Class<T> type) {
+    ClassCreatingClassLoader(Class<PT> type) {
         super(determineParent());
 
         methods = uniqueMethodsForType(type);
-        publisherType = publisherTypeFor(type);
-        publisherClass = defineClass(new PublisherCreator<T>(type, publisherType, methods));
+        Type publisherType = publisherTypeFor(type);
+        publisherClass = defineClass(new PublisherCreator<>(type, publisherType, methods));
         subscriberClasses = new HashMap<>(methods.size());
 
         for (Method method : methods) {
@@ -42,8 +41,8 @@ class ClassCreatingClassloader<T> extends ClassLoader {
 
     private static <T> List<Method> uniqueMethodsForType(Class<T> type) {
         Method[] methods = type.getMethods();
-        List<Method> uniqueMethods = new ArrayList<Method>(methods.length);
-        Set<org.objectweb.asm.commons.Method> unique = new HashSet<org.objectweb.asm.commons.Method>();
+        List<Method> uniqueMethods = new ArrayList<>(methods.length);
+        Set<org.objectweb.asm.commons.Method> unique = new HashSet<>();
         for (Method method : type.getMethods()) {
             if (unique.add(org.objectweb.asm.commons.Method.getMethod(method))) {
                 uniqueMethods.add(method);
@@ -56,7 +55,7 @@ class ClassCreatingClassloader<T> extends ClassLoader {
         return methods;
     }
 
-    T publisher(Map<Method, ? extends Publisher<?>> publishers) {
+    PT publisher(Map<Method, ? extends Publisher<?>> publishers) {
         return newInstance(publisherClass, publisherArguments(publishers));
     }
 
@@ -69,7 +68,7 @@ class ClassCreatingClassloader<T> extends ClassLoader {
     }
 
     private Object[] publisherArguments(Map<Method, ? extends Publisher<?>> publishers) {
-        List<Publisher<?>> arguments = new ArrayList<Publisher<?>>();
+        List<Publisher<?>> arguments = new ArrayList<>();
         for (Method method : methods) {
             arguments.add(publishers.get(method));
         }
@@ -77,7 +76,7 @@ class ClassCreatingClassloader<T> extends ClassLoader {
     }
 
     private <T> T newInstance(Class<? extends T> type, Object... initargs) {
-        return new Instantiator<T>(type, initargs).newInstance();
+        return new Instantiator<>(type, initargs).newInstance();
     }
 
     private <T> Class<? extends T> defineClass(ClassCreator<T> creator) {

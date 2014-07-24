@@ -3,6 +3,7 @@ package org.fotap.heysync;
 import org.jetlang.channels.Channel;
 import org.jetlang.channels.MemoryChannel;
 import org.jetlang.channels.Subscriber;
+import org.jetlang.core.Callback;
 import org.jetlang.core.Disposable;
 import org.jetlang.core.DisposingExecutor;
 
@@ -28,38 +29,38 @@ import static org.fotap.heysync.Validation.isAsynchronable;
  */
 public class Protocol<T> {
     private final Map<Method, Channel<Object>> channels;
-    private final ClassCreatingClassloader<T> loader;
+    private final ClassCreatingClassLoader<T> loader;
     private final Class<T> type;
     private final T proxy;
 
     public static <T> Protocol<T> create(Class<T> type) {
         validate(type);
-        return new Protocol<T>(type, new ClassCreatingClassloader<T>(type));
+        return new Protocol<>(type, new ClassCreatingClassLoader<>(type));
     }
 
     /**
      * Create multiple protocols that share the same class loader for generated code
      */
     public static class Factory<T> {
-        private final ClassCreatingClassloader<T> loader;
+        private final ClassCreatingClassLoader<T> loader;
         private final Class<T> type;
 
         public static <T> Factory<T> create(Class<T> type) {
             validate(type);
-            return new Factory<T>(type);
+            return new Factory<>(type);
         }
 
         private Factory(Class<T> type) {
             this.type = type;
-            this.loader = new ClassCreatingClassloader<T>(type);
+            this.loader = new ClassCreatingClassLoader<>(type);
         }
 
         public Protocol<T> create() {
-            return new Protocol<T>(type, loader);
+            return new Protocol<>(type, loader);
         }
     }
 
-    private Protocol(Class<T> type, ClassCreatingClassloader<T> loader) {
+    private Protocol(Class<T> type, ClassCreatingClassLoader<T> loader) {
         this.type = type;
         this.channels = createChannels(loader.methods());
         this.loader = loader;
@@ -67,9 +68,9 @@ public class Protocol<T> {
     }
 
     private Map<Method, Channel<Object>> createChannels(List<Method> methods) {
-        Map<Method, Channel<Object>> channels = new HashMap<Method, Channel<Object>>(methods.size());
+        Map<Method, Channel<Object>> channels = new HashMap<>(methods.size());
         for (Method method : methods) {
-            channels.put(method, new MemoryChannel<Object>());
+            channels.put(method, new MemoryChannel<>());
         }
         return channels;
     }
@@ -95,13 +96,18 @@ public class Protocol<T> {
         for (Map.Entry<Method, Channel<Object>> entry : channels.entrySet()) {
             Method method = entry.getKey();
             Subscriber<Object> subscriber = entry.getValue();
-            disposables.add(subscriber.subscribe(executor, loader.callbackFor(method, receiver)));
+            Callback<Object> callback = loader.callbackFor(method, receiver);
+            if (method.isAnnotationPresent(LatestOnly.class)) {
+                disposables.add(subscriber.subscribe(new LatestOnlySubscriber<>(executor, callback)));
+            } else {
+                disposables.add(subscriber.subscribe(executor, callback));
+            }
         }
 
         return disposables;
     }
 
-    public <T> Channel<T> channelFor(Method method, Class<T> parameterType) {
+    public <ParamType> Channel<ParamType> channelFor(Method method, Class<ParamType> parameterType) {
         if (method.getParameterTypes().length > 1) {
             if (!Object[].class.equals(parameterType)) {
                 throw new IllegalArgumentException("Must specify java.lang.Object[] as parameter type on multiple arg method: "
@@ -130,7 +136,7 @@ public class Protocol<T> {
         if (!isAsynchronable(type)) {
             throw new IllegalArgumentException(
                     String.format("Cannot create a protocol for %s. " +
-                            "It must be an interface that is marked with the %s annotation",
+                                    "It must be an interface that is marked with the %s annotation",
                             type.getName(),
                             Asynchronous.class.getName()));
         }
